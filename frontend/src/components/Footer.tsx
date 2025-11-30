@@ -26,9 +26,7 @@ const Footer: React.FC = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Gamepad2 size={22} />
               </div>
-              <span className="font-bold text-xl tracking-tight">
-                GameAccHub
-              </span>
+              <span className="font-bold text-xl tracking-tight">ShopAcc</span>
             </div>
             <p className="text-blue-100 mb-6 leading-relaxed text-sm">
               Sàn giao dịch tài khoản game uy tín hàng đầu Việt Nam. Cam kết

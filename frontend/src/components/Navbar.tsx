@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-gray-900 leading-none">
-                  GameAccHub
+                  ShopAcc
                 </span>
                 <span className="text-[10px] text-gray-500 font-medium">
                   Mua bán tài khoản #1
@@ -49,6 +49,26 @@ const Navbar: React.FC = () => {
               Trang chủ
             </Link>
             <Link
+              to="/products"
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                isActive("/products")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              Sản phẩm
+            </Link>
+            <Link
+              to="/promotions"
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                isActive("/promotions")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              Khuyến mãi
+            </Link>
+            <Link
               to="/deposit"
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                 isActive("/deposit")
@@ -58,15 +78,16 @@ const Navbar: React.FC = () => {
             >
               Nạp tiền
             </Link>
-            <button className="px-4 py-2 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all">
-              Khuyến mãi
-            </button>
-            <button className="px-4 py-2 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all">
-              Sản phẩm
-            </button>
-            <button className="px-4 py-2 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all">
+            <Link
+              to="/contact"
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                isActive("/contact")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
               Liên hệ
-            </button>
+            </Link>
           </div>
 
           {/* Right Actions */}
@@ -132,6 +153,28 @@ const Navbar: React.FC = () => {
               Trang chủ
             </Link>
             <Link
+              to="/products"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                isActive("/products")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Sản phẩm
+            </Link>
+            <Link
+              to="/promotions"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                isActive("/promotions")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Khuyến mãi
+            </Link>
+            <Link
               to="/deposit"
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
@@ -142,15 +185,17 @@ const Navbar: React.FC = () => {
             >
               Nạp tiền
             </Link>
-            <button className="w-full text-left px-4 py-2.5 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 transition-all">
-              Khuyến mãi
-            </button>
-            <button className="w-full text-left px-4 py-2.5 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 transition-all">
-              Sản phẩm
-            </button>
-            <button className="w-full text-left px-4 py-2.5 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 transition-all">
+            <Link
+              to="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                isActive("/contact")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
               Liên hệ
-            </button>
+            </Link>
 
             {/* Mobile Search */}
             <div className="pt-3 pb-2">

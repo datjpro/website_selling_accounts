@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
             <Shield size={32} fill="currentColor" className="opacity-90" />
           </div>
           <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            GameAccHub
+            ShopAcc
           </span>
           <p className="text-sm text-gray-500 mt-1">Đăng nhập để tiếp tục</p>
         </div>

@@ -50,7 +50,7 @@ const RegisterPage: React.FC = () => {
 
           <h1 className="text-center text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight drop-shadow-xl">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-              GAMEACCHUB:
+              SHOPACC:
             </span>{" "}
             Gia nhập thế
             <br />
@@ -65,10 +65,10 @@ const RegisterPage: React.FC = () => {
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative bg-[#13161f]">
         <div className="w-full max-w-[480px] bg-[#1a1f2e]/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-white/5">
-          <h2 className="text-2xl font-bold text-center mb-1 text-gray-100">
-            Trang đăng ký
+          <h2 className="text-3xl font-black text-center mb-1 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Đăng Ký Tài Khoản
           </h2>
-          <div className="h-1 w-12 bg-purple-500 mx-auto mb-8 rounded-full"></div>
+          <div className="h-1 w-16 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-8 rounded-full"></div>
 
           <div className="space-y-3 mb-6">
             <button className="w-full flex items-center justify-center gap-3 bg-[#242936] hover:bg-[#2e3545] border border-gray-700/50 rounded-lg py-3 transition-all group">
