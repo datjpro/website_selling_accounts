@@ -1,15 +1,31 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, Shield } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { success, error } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    navigate("/");
+    setLoading(true);
+
+    try {
+      await login(email, password);
+      success("Đăng nhập thành công!");
+      navigate("/");
+    } catch (err) {
+      error("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,7 +59,10 @@ const LoginPage: React.FC = () => {
             </div>
             <input
               type="text"
-              placeholder="Tên đăng nhập hoặc Email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-300"
             />
           </div>
@@ -55,6 +74,9 @@ const LoginPage: React.FC = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Mật khẩu"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full pl-11 pr-11 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-300"
             />
             <button
@@ -77,9 +99,10 @@ const LoginPage: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-[#1e60cd] hover:bg-[#1650b0] text-white font-bold py-3.5 rounded-lg shadow-md transition-all transform active:scale-[0.98]"
+            disabled={loading}
+            className="w-full bg-[#1e60cd] hover:bg-[#1650b0] text-white font-bold py-3.5 rounded-lg shadow-md transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Đăng nhập
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 

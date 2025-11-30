@@ -1,13 +1,33 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, Gamepad2 } from "lucide-react";
+import {
+  Search,
+  ShoppingCart,
+  User,
+  Menu,
+  X,
+  Gamepad2,
+  LogOut,
+  Package,
+} from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { getCartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    await logout();
+    setUserMenuOpen(false);
+    navigate("/");
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
@@ -103,28 +123,95 @@ const Navbar: React.FC = () => {
             </div>
 
             {/* Cart */}
-            <button className="relative p-2.5 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-blue-600 transition-all">
+            <Link
+              to="/cart"
+              className="relative p-2.5 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-blue-600 transition-all"
+            >
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
-                0
-              </span>
-            </button>
+              {getCartCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
+                  {getCartCount()}
+                </span>
+              )}
+            </Link>
 
-            {/* Auth Buttons */}
-            <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
-              <button
-                onClick={() => navigate("/login")}
-                className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 rounded-lg hover:bg-gray-50 transition-all"
-              >
-                Đăng nhập
-              </button>
-              <button
-                onClick={() => navigate("/register")}
-                className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg shadow-md hover:shadow-lg transition-all"
-              >
-                Đăng ký
-              </button>
-            </div>
+            {/* Auth Section */}
+            {isAuthenticated && user ? (
+              <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-gray-200 relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                    {user.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">
+                    {user.username}
+                  </span>
+                </button>
+
+                {/* User Dropdown */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {user.fullName || user.username}
+                      </p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <Link
+                      to="/user/dashboard"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <User size={16} className="mr-3" />
+                      Tài khoản của tôi
+                    </Link>
+                    <Link
+                      to="/user/orders"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Package size={16} className="mr-3" />
+                      Đơn hàng
+                    </Link>
+                    {user.role === "admin" && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-purple-600 hover:bg-purple-50"
+                      >
+                        <Gamepad2 size={16} className="mr-3" />
+                        Admin Panel
+                      </Link>
+                    )}
+                    <hr className="my-2" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut size={16} className="mr-3" />
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 rounded-lg hover:bg-gray-50 transition-all"
+                >
+                  Đăng nhập
+                </button>
+                <button
+                  onClick={() => navigate("/register")}
+                  className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg shadow-md hover:shadow-lg transition-all"
+                >
+                  Đăng ký
+                </button>
+              </div>
+            )}
 
             {/* Mobile User Button */}
             <button
