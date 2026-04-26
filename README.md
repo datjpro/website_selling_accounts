@@ -1,13 +1,13 @@
 # 🎮 ShopAcc - Website Bán Tài Khoản Game
 
-Nền tảng bán tài khoản game trực tuyến được xây dựng với React, Vite, Node.js, Express và PostgreSQL.
+Nền tảng bán tài khoản game trực tuyến được xây dựng với React, Vite, Node.js, Express và MySQL.
 
 ## 📁 Cấu trúc dự án
 
 ```
 root/
 ├── frontend/          # Giao diện người dùng - React + Vite (TypeScript)
-├── backend/           # API Backend - Node/Express + PostgreSQL (TypeScript)
+├── backend/           # API Backend - Node/Express + MySQL (TypeScript)
 ├── docker-compose.yml # Docker containerization
 ├── .env               # Biến môi trường
 └── README.md          # File này
@@ -35,7 +35,7 @@ root/
 ## 📋 Yêu cầu hệ thống
 
 - **Docker Desktop** (Khuyến nghị - dễ nhất)
-- Hoặc: Node.js 18+, PostgreSQL 14+, npm/yarn
+- Hoặc: Node.js 18+, MySQL 14+, npm/yarn
 
 ## 🚀 Khởi động nhanh (Docker - Khuyến nghị)
 
@@ -77,7 +77,7 @@ docker-compose up -d
 
 - **Website**: http://localhost:5173
 - **API Backend**: http://localhost:3000/api
-- **Database**: localhost:5433
+- **Database**: localhost:3306
 
 ### Thông tin đăng nhập Admin mặc định
 
@@ -115,7 +115,7 @@ Mật khẩu: Admin@2024SecurePass
 
    ```bash
    # Tạo database và chạy init.sql
-   psql -U postgres -d website_selling_accounts -f src/database/init.sql
+   mysql -u root -p123456 website_selling_accounts < src/database/mysql_init.sql
    ```
 
 5. Chạy server:
@@ -191,10 +191,10 @@ Mật khẩu: Admin@2024SecurePass
 | ------------ | --------------------- | ---------------------------- |
 | PORT         | Cổng server           | 3000                         |
 | NODE_ENV     | Môi trường chạy       | production                   |
-| DB_HOST      | PostgreSQL host       | postgres                     |
-| DB_PORT      | PostgreSQL port       | 5432                         |
+| DB_HOST      | MySQL host       | mysql                        |
+| DB_PORT      | MySQL port       | 3306                         |
 | DB_NAME      | Tên database          | website_selling_accounts     |
-| DB_USER      | User database         | postgres                     |
+| DB_USER      | User database         | root                         |
 | DB_PASSWORD  | Mật khẩu database     | shopacc_secure_password_2024 |
 | JWT_SECRET   | Secret key cho JWT    | (thay đổi trong production)  |
 | FRONTEND_URL | URL frontend cho CORS | http://localhost:5173        |
@@ -222,7 +222,7 @@ Mật khẩu: Admin@2024SecurePass
 - **Node.js 22** - Runtime
 - **Express 5** - Web framework
 - **TypeScript 5.9** - Type safety
-- **PostgreSQL 16** - Database
+- **MySQL 16** - Database
 - **Helmet** - Security headers
 - **CORS** - Cross-origin resource sharing
 
@@ -322,7 +322,7 @@ docker-compose up -d
 curl http://localhost:3000/api/health
 
 # Database
-docker-compose exec postgres pg_isready -U postgres
+docker-compose exec mysql mysqladmin ping -u root -p123456
 ```
 
 ### Xem resource usage

@@ -7,7 +7,7 @@
 ## Công nghệ chính
 - `frontend/`: React + Vite + TypeScript.
 - `backend/`: Node.js + Express + TypeScript.
-- Database: PostgreSQL.
+- Database: MySQL.
 - Hạ tầng local/dev: Docker Compose.
 
 ## Tư duy tổ chức dự án
