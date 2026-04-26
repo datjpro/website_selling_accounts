@@ -1,4 +1,4 @@
-﻿-- 1. Users
+-- 1. Users
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(100) UNIQUE NULL,
