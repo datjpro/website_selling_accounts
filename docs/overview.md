@@ -6,16 +6,16 @@
 - Xây dựng API theo từng phase, bắt đầu từ Catalog.
 
 ## Runtime hiện tại
-- Frontend: Vite dev server tại `localhost:5173`
-- Backend: Docker container tại `localhost:3000`
+- Frontend: Vite tại `localhost:5173`
+- Backend: local Node.js tại `localhost:3000`
 - Database: MySQL local tại `localhost:3306`
 - Database name: `shopacc_mysql`
 
 ## Kiến trúc hiện tại
 - Frontend gọi backend qua REST API.
 - Backend dùng Express + TypeScript.
-- Backend tự chạy `ensureDatabaseSchema()` khi start.
-- Schema nền tảng hiện có 9 bảng trong MySQL.
+- Backend local tự chạy `ensureDatabaseSchema()` khi start.
+- Schema nền tảng hiện có 9 bảng và đã được mở rộng tối thiểu cho Catalog.
 
 ## Tài liệu nguồn sự thật
 - Setup database: `backend/DATABASE_SETUP.md`
