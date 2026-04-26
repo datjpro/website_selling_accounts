@@ -1,41 +1,44 @@
-﻿{
-    "name":  "backend",
-    "version":  "1.0.0",
-    "main":  "dist/index.js",
-    "scripts":  {
-                    "dev":  "nodemon --exec ts-node src/index.ts",
-                    "build":  "tsc",
-                    "start":  "node dist/index.js",
-                    "lint":  "eslint src/**/*.ts",
-                    "test":  "echo \"No tests specified yet\" \u0026\u0026 exit 0"
-                },
-    "keywords":  [
-                     "express",
-                     "typescript",
-                     "mysql",
-                     "api"
-                 ],
-    "author":  "",
-    "license":  "ISC",
-    "description":  "Backend API for website selling accounts",
-    "dependencies":  {
-                         "cors":  "^2.8.5",
-                         "dotenv":  "^17.2.3",
-                         "express":  "^5.1.0",
-                         "helmet":  "^8.1.0",
-                         "mysql2":  "^3.22.2"
-                     },
-    "devDependencies":  {
-                            "@eslint/js":  "^9.39.1",
-                            "@types/cors":  "^2.8.19",
-                            "@types/express":  "^5.0.5",
-                            "@types/node":  "^24.12.2",
-                            "@typescript-eslint/eslint-plugin":  "^8.48.0",
-                            "@typescript-eslint/parser":  "^8.48.0",
-                            "eslint":  "^9.39.1",
-                            "nodemon":  "^3.1.11",
-                            "ts-node":  "^10.9.2",
-                            "typescript":  "^5.9.3",
-                            "typescript-eslint":  "^8.48.0"
-                        }
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "dev": "nodemon --exec ts-node src/index.ts",
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "lint": "eslint src/**/*.ts",
+        "test": "echo \"No tests specified yet\" && exit 0"
+    },
+    "keywords": [
+        "express",
+        "typescript",
+        "mysql",
+        "api"
+    ],
+    "author": "",
+    "license": "ISC",
+    "description": "Backend API for website selling accounts",
+    "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.3",
+        "express": "^5.1.0",
+        "helmet": "^8.1.0",
+        "jsonwebtoken": "^9.0.3",
+        "mysql2": "^3.22.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.1",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.5",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/node": "^24.12.2",
+        "@typescript-eslint/eslint-plugin": "^8.48.0",
+        "@typescript-eslint/parser": "^8.48.0",
+        "eslint": "^9.39.1",
+        "nodemon": "^3.1.11",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.48.0"
+    }
 }
