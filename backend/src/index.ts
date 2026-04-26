@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import accountRoutes from './routes/accountRoutes';
+import authRoutes from './routes/auth-routes';
 import categoryRoutes from './routes/category-routes';
 import productRoutes from './routes/product-routes';
 import reviewRoutes from './routes/review-routes';
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/accounts', accountRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
