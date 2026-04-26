@@ -108,6 +108,59 @@ const ensureCatalogExtensions = async (connection: mysql.Connection): Promise<vo
   await connection.query('UPDATE reviews SET is_verified_purchase = COALESCE(is_verified_purchase, false), is_approved = COALESCE(is_approved, true), helpful_count = COALESCE(helpful_count, 0)');
 };
 
+const ensureOrderExtensions = async (connection: mysql.Connection): Promise<void> => {
+  await addColumnIfMissing(connection, 'promotions', 'title', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'promotions', 'description', 'TEXT NULL');
+  await addColumnIfMissing(connection, 'promotions', 'discount_type', "VARCHAR(20) DEFAULT 'percentage'");
+  await addColumnIfMissing(connection, 'promotions', 'discount_value', 'DECIMAL(12, 2) NOT NULL DEFAULT 0');
+  await addColumnIfMissing(connection, 'promotions', 'min_order_amount', 'DECIMAL(12, 2) DEFAULT 0');
+  await addColumnIfMissing(connection, 'promotions', 'max_discount_amount', 'DECIMAL(12, 2) NULL');
+  await addColumnIfMissing(connection, 'promotions', 'usage_limit', 'INT NULL');
+  await addColumnIfMissing(connection, 'promotions', 'usage_count', 'INT DEFAULT 0');
+  await addColumnIfMissing(connection, 'promotions', 'usage_per_user', 'INT DEFAULT 1');
+  await addColumnIfMissing(connection, 'promotions', 'is_active', 'BOOLEAN DEFAULT true');
+  await addColumnIfMissing(connection, 'promotions', 'badge', 'VARCHAR(50) NULL');
+  await addColumnIfMissing(connection, 'promotions', 'start_date', 'TIMESTAMP NULL');
+  await addColumnIfMissing(connection, 'promotions', 'end_date', 'TIMESTAMP NULL');
+  await addColumnIfMissing(connection, 'promotions', 'updated_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
+
+  await addColumnIfMissing(connection, 'orders', 'order_number', 'VARCHAR(50) NULL');
+  await addColumnIfMissing(connection, 'orders', 'customer_name', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'orders', 'customer_email', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'orders', 'customer_phone', 'VARCHAR(30) NULL');
+  await addColumnIfMissing(connection, 'orders', 'discount_amount', 'DECIMAL(12, 2) DEFAULT 0');
+  await addColumnIfMissing(connection, 'orders', 'final_amount', 'DECIMAL(12, 2) DEFAULT 0');
+  await addColumnIfMissing(connection, 'orders', 'payment_method', 'VARCHAR(50) NULL');
+  await addColumnIfMissing(connection, 'orders', 'payment_status', "VARCHAR(20) DEFAULT 'pending'");
+  await addColumnIfMissing(connection, 'orders', 'customer_note', 'TEXT NULL');
+  await addColumnIfMissing(connection, 'orders', 'admin_note', 'TEXT NULL');
+  await addColumnIfMissing(connection, 'orders', 'paid_at', 'TIMESTAMP NULL');
+  await addColumnIfMissing(connection, 'orders', 'completed_at', 'TIMESTAMP NULL');
+
+  await addColumnIfMissing(connection, 'order_items', 'product_name', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'order_items', 'product_price', 'DECIMAL(12, 2) DEFAULT 0');
+  await addColumnIfMissing(connection, 'order_items', 'subtotal', 'DECIMAL(12, 2) DEFAULT 0');
+  await addColumnIfMissing(connection, 'order_items', 'account_username', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'order_items', 'account_password', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'order_items', 'account_email', 'VARCHAR(255) NULL');
+  await addColumnIfMissing(connection, 'order_items', 'additional_info', 'TEXT NULL');
+
+  await addColumnIfMissing(connection, 'transactions', 'user_id', 'VARCHAR(36) NULL');
+  await addColumnIfMissing(connection, 'transactions', 'transaction_type', "VARCHAR(50) DEFAULT 'payment'");
+  await addColumnIfMissing(connection, 'transactions', 'description', 'TEXT NULL');
+  await addColumnIfMissing(connection, 'transactions', 'updated_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
+
+  const hasOrderNumberIndex = await indexExists(connection, 'orders', 'idx_orders_order_number');
+  if (!hasOrderNumberIndex) {
+    await connection.query('CREATE UNIQUE INDEX idx_orders_order_number ON orders (order_number)');
+  }
+
+  await connection.query("UPDATE promotions SET discount_type = COALESCE(discount_type, 'percentage'), is_active = COALESCE(is_active, true), usage_count = COALESCE(usage_count, 0), usage_per_user = COALESCE(usage_per_user, 1), min_order_amount = COALESCE(min_order_amount, 0), discount_value = COALESCE(discount_value, discount_percent, 0), valid_until = COALESCE(valid_until, NOW())");
+  await connection.query("UPDATE orders SET discount_amount = COALESCE(discount_amount, 0), final_amount = COALESCE(final_amount, total_amount), payment_status = COALESCE(payment_status, 'pending')");
+  await connection.query('UPDATE order_items SET product_price = COALESCE(product_price, price_at_purchase), subtotal = COALESCE(subtotal, price_at_purchase * quantity)');
+  await connection.query("UPDATE transactions SET transaction_type = COALESCE(transaction_type, 'payment')");
+};
+
 export const ensureDatabaseSchema = async (): Promise<void> => {
   const adminConnection = await mysql.createConnection({
     host: dbConfig.host,
@@ -128,6 +181,7 @@ export const ensureDatabaseSchema = async (): Promise<void> => {
     await adminConnection.query(schemaSql);
     await ensureUserExtensions(adminConnection);
     await ensureCatalogExtensions(adminConnection);
+    await ensureOrderExtensions(adminConnection);
   } finally {
     await adminConnection.end();
   }

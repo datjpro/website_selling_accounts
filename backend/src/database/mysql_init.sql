@@ -1,4 +1,4 @@
--- 1. Users
+﻿-- 1. Users
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(100) UNIQUE NULL,
@@ -74,16 +74,42 @@ CREATE TABLE IF NOT EXISTS product_images (
 CREATE TABLE IF NOT EXISTS promotions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
-    discount_percent INT NOT NULL,
+    title VARCHAR(255) NULL,
+    description TEXT NULL,
+    discount_type VARCHAR(20) DEFAULT 'percentage',
+    discount_value DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    min_order_amount DECIMAL(12, 2) DEFAULT 0,
+    max_discount_amount DECIMAL(12, 2) NULL,
+    usage_limit INT NULL,
+    usage_count INT DEFAULT 0,
+    usage_per_user INT DEFAULT 1,
+    is_active BOOLEAN DEFAULT true,
+    badge VARCHAR(50) NULL,
+    start_date TIMESTAMP NULL,
+    end_date TIMESTAMP NULL,
+    discount_percent INT NOT NULL DEFAULT 0,
     valid_until TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- 6. Orders
 CREATE TABLE IF NOT EXISTS orders (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    order_number VARCHAR(50) UNIQUE NULL,
     user_id VARCHAR(36),
+    customer_name VARCHAR(255) NULL,
+    customer_email VARCHAR(255) NULL,
+    customer_phone VARCHAR(30) NULL,
     total_amount DECIMAL(12, 2) NOT NULL,
+    discount_amount DECIMAL(12, 2) DEFAULT 0,
+    final_amount DECIMAL(12, 2) DEFAULT 0,
+    payment_method VARCHAR(50) NULL,
+    payment_status VARCHAR(20) DEFAULT 'pending',
+    customer_note TEXT NULL,
+    admin_note TEXT NULL,
+    paid_at TIMESTAMP NULL,
+    completed_at TIMESTAMP NULL,
     status VARCHAR(50) DEFAULT 'pending',
     promotion_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -97,6 +123,13 @@ CREATE TABLE IF NOT EXISTS order_items (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     order_id VARCHAR(36),
     product_id VARCHAR(36),
+    product_name VARCHAR(255) NULL,
+    product_price DECIMAL(12, 2) DEFAULT 0,
+    subtotal DECIMAL(12, 2) DEFAULT 0,
+    account_username VARCHAR(255) NULL,
+    account_password VARCHAR(255) NULL,
+    account_email VARCHAR(255) NULL,
+    additional_info TEXT NULL,
     price_at_purchase DECIMAL(12, 2) NOT NULL,
     quantity INT NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
@@ -107,11 +140,16 @@ CREATE TABLE IF NOT EXISTS order_items (
 CREATE TABLE IF NOT EXISTS transactions (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     order_id VARCHAR(36),
+    user_id VARCHAR(36) NULL,
+    transaction_type VARCHAR(50) DEFAULT 'payment',
     payment_method VARCHAR(50),
     status VARCHAR(50),
     amount DECIMAL(12, 2) NOT NULL,
+    description TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- 9. Reviews
