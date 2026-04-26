@@ -21,36 +21,35 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - DB_HOST=mysql
+      - DB_PORT=3306
       - DB_NAME=website_selling_accounts
-      - DB_USER=postgres
-      - DB_PASSWORD=password
+      - DB_USER=root
+      - DB_PASSWORD=123456
       - FRONTEND_URL=http://localhost:5173
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     volumes:
       - ./backend:/app
       - /app/node_modules
       - /app/dist
 
-  postgres:
-    image: postgres:16-alpine
+  mysql:
+    image: mysql:8.0
     ports:
-      - "5433:5432"
+      - "3306:3306"
     environment:
-      - POSTGRES_DB=website_selling_accounts
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - MYSQL_DATABASE=website_selling_accounts
+      - MYSQL_ROOT_PASSWORD=123456
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+      - ./backend/src/database/mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p123456"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
-  postgres_data:
+  mysql_data:
