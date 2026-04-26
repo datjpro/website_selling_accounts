@@ -36,12 +36,12 @@ export interface AuthResponse {
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await apiClient.post("/auth/login", credentials);
-    return response.data;
+    return response.data.data;
   },
 
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await apiClient.post("/auth/register", data);
-    return response.data;
+    return response.data.data;
   },
 
   logout: async (): Promise<void> => {
@@ -52,12 +52,12 @@ export const authService = {
 
   getCurrentUser: async (): Promise<User> => {
     const response = await apiClient.get("/auth/me");
-    return response.data;
+    return response.data.data;
   },
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
     const response = await apiClient.put("/auth/profile", data);
-    return response.data;
+    return response.data.data;
   },
 
   changePassword: async (

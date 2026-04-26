@@ -27,12 +27,12 @@ export interface CreateReviewData {
 export const reviewService = {
   getProductReviews: async (productId: number): Promise<Review[]> => {
     const response = await apiClient.get(`/reviews/product/${productId}`);
-    return response.data;
+    return response.data.data;
   },
 
   createReview: async (data: CreateReviewData): Promise<Review> => {
     const response = await apiClient.post("/reviews", data);
-    return response.data;
+    return response.data.data;
   },
 
   markHelpful: async (reviewId: number): Promise<void> => {

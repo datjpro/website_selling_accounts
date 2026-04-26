@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, User, Wallet } from 'lucide-react';
+import { ShieldCheck, Lock, User } from 'lucide-react';
 
 interface DepositPageProps {
   onNavigate: (page: string) => void;

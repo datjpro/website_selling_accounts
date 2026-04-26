@@ -51,26 +51,26 @@ export interface CreateOrderData {
 export const orderService = {
   createOrder: async (data: CreateOrderData): Promise<Order> => {
     const response = await apiClient.post("/orders", data);
-    return response.data;
+    return response.data.data;
   },
 
   getMyOrders: async (): Promise<Order[]> => {
     const response = await apiClient.get("/orders/my-orders");
-    return response.data;
+    return response.data.data;
   },
 
   getOrderById: async (id: number): Promise<Order> => {
     const response = await apiClient.get(`/orders/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   getOrderByNumber: async (orderNumber: string): Promise<Order> => {
     const response = await apiClient.get(`/orders/number/${orderNumber}`);
-    return response.data;
+    return response.data.data;
   },
 
   cancelOrder: async (id: number): Promise<Order> => {
     const response = await apiClient.post(`/orders/${id}/cancel`);
-    return response.data;
+    return response.data.data;
   },
 };

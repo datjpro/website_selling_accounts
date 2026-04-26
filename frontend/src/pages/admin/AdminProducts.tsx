@@ -7,7 +7,6 @@ import {
   Trash2,
   Eye,
   Star,
-  Package,
 } from "lucide-react";
 
 const AdminProducts: React.FC = () => {

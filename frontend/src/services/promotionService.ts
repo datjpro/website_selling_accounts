@@ -28,12 +28,12 @@ export interface ValidatePromotionResponse {
 export const promotionService = {
   getPromotions: async (): Promise<Promotion[]> => {
     const response = await apiClient.get("/promotions");
-    return response.data;
+    return response.data.data;
   },
 
   getActivePromotions: async (): Promise<Promotion[]> => {
     const response = await apiClient.get("/promotions/active");
-    return response.data;
+    return response.data.data;
   },
 
   validatePromotion: async (
@@ -44,6 +44,6 @@ export const promotionService = {
       code,
       orderAmount,
     });
-    return response.data;
+    return response.data.data;
   },
 };

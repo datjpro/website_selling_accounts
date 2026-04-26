@@ -70,24 +70,24 @@ export interface ProductsResponse {
 export const productService = {
   getProducts: async (filters?: ProductFilters): Promise<ProductsResponse> => {
     const response = await apiClient.get("/products", { params: filters });
-    return response.data;
+    return response.data.data;
   },
 
   getProductById: async (id: number): Promise<Product> => {
     const response = await apiClient.get(`/products/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   getProductBySlug: async (slug: string): Promise<Product> => {
     const response = await apiClient.get(`/products/slug/${slug}`);
-    return response.data;
+    return response.data.data;
   },
 
   getFeaturedProducts: async (limit = 6): Promise<Product[]> => {
     const response = await apiClient.get("/products/featured", {
       params: { limit },
     });
-    return response.data;
+    return response.data.data;
   },
 
   getRelatedProducts: async (
@@ -97,30 +97,30 @@ export const productService = {
     const response = await apiClient.get(`/products/${productId}/related`, {
       params: { limit },
     });
-    return response.data;
+    return response.data.data;
   },
 
   searchProducts: async (query: string): Promise<Product[]> => {
     const response = await apiClient.get("/products/search", {
       params: { q: query },
     });
-    return response.data;
+    return response.data.data;
   },
 };
 
 export const categoryService = {
   getCategories: async (): Promise<Category[]> => {
     const response = await apiClient.get("/categories");
-    return response.data;
+    return response.data.data;
   },
 
   getCategoryById: async (id: number): Promise<Category> => {
     const response = await apiClient.get(`/categories/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   getCategoryBySlug: async (slug: string): Promise<Category> => {
     const response = await apiClient.get(`/categories/slug/${slug}`);
-    return response.data;
+    return response.data.data;
   },
 };
