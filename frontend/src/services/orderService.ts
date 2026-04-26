@@ -2,7 +2,7 @@ import apiClient from "./api";
 
 export interface OrderItem {
   id?: number;
-  productId: number;
+  productId: string;
   productName: string;
   productPrice: number;
   quantity: number;
@@ -14,9 +14,9 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: number;
+  id: string;
   orderNumber: string;
-  userId: number;
+  userId: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
@@ -42,7 +42,7 @@ export interface CreateOrderData {
   paymentMethod: string;
   customerNote?: string;
   items: {
-    productId: number;
+    productId: string;
     quantity: number;
   }[];
   promotionCode?: string;
@@ -59,7 +59,7 @@ export const orderService = {
     return response.data.data;
   },
 
-  getOrderById: async (id: number): Promise<Order> => {
+  getOrderById: async (id: string): Promise<Order> => {
     const response = await apiClient.get(`/orders/${id}`);
     return response.data.data;
   },
@@ -69,7 +69,7 @@ export const orderService = {
     return response.data.data;
   },
 
-  cancelOrder: async (id: number): Promise<Order> => {
+  cancelOrder: async (id: string): Promise<Order> => {
     const response = await apiClient.post(`/orders/${id}/cancel`);
     return response.data.data;
   },

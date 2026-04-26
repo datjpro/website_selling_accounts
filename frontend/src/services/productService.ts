@@ -1,8 +1,8 @@
 import apiClient from "./api";
 
 export interface Product {
-  id: number;
-  categoryId: number;
+  id: string;
+  categoryId: number | null;
   name: string;
   slug: string;
   gameTitle: string;
@@ -30,7 +30,7 @@ export interface Product {
 
 export interface ProductImage {
   id: number;
-  productId: number;
+  productId: string;
   imageUrl: string;
   isPrimary: boolean;
   sortOrder: number;
@@ -73,7 +73,7 @@ export const productService = {
     return response.data.data;
   },
 
-  getProductById: async (id: number): Promise<Product> => {
+  getProductById: async (id: string): Promise<Product> => {
     const response = await apiClient.get(`/products/${id}`);
     return response.data.data;
   },
@@ -91,7 +91,7 @@ export const productService = {
   },
 
   getRelatedProducts: async (
-    productId: number,
+    productId: string,
     limit = 4
   ): Promise<Product[]> => {
     const response = await apiClient.get(`/products/${productId}/related`, {

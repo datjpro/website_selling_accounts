@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { orderService } from "../services/orderService";
+import { promotionService } from "../services/promotionService";
 import {
   CreditCard,
   Smartphone,
@@ -28,6 +30,7 @@ const CheckoutPage: React.FC = () => {
 
   const [promoApplied, setPromoApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const paymentMethods = [
     {
@@ -60,14 +63,32 @@ const CheckoutPage: React.FC = () => {
     },
   ];
 
-  const handleApplyPromo = () => {
-    // Mock promo validation
-    if (formData.promotionCode === "WELCOME2024") {
-      setDiscount(getCartTotal() * 0.15);
+  const handleApplyPromo = async () => {
+    if (!formData.promotionCode.trim()) {
+      error("Vui lòng nhập mã giảm giá");
+      return;
+    }
+
+    try {
+      const result = await promotionService.validatePromotion(
+        formData.promotionCode.trim(),
+        getCartTotal()
+      );
+
+      if (!result.valid) {
+        setDiscount(0);
+        setPromoApplied(false);
+        error(result.message || "Mã giảm giá không hợp lệ");
+        return;
+      }
+
+      setDiscount(result.discountAmount || 0);
       setPromoApplied(true);
-      success("Áp dụng mã giảm giá thành công!");
-    } else {
-      error("Mã giảm giá không hợp lệ");
+      success(result.message || "Áp dụng mã giảm giá thành công!");
+    } catch (applyError) {
+      setDiscount(0);
+      setPromoApplied(false);
+      error("Không thể kiểm tra mã giảm giá");
     }
   };
 
@@ -85,16 +106,29 @@ const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // Mock order creation
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsSubmitting(true);
+
+      const order = await orderService.createOrder({
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        customerPhone: formData.customerPhone || undefined,
+        paymentMethod: formData.paymentMethod,
+        customerNote: formData.customerNote || undefined,
+        promotionCode: promoApplied ? formData.promotionCode.trim() : undefined,
+        items: items.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
+      });
 
       clearCart();
-      success("Đặt hàng thành công!");
-      navigate("/user/orders");
-    } catch (err) {
+      success(`Đặt hàng thành công! Mã đơn: ${order.orderNumber}`);
+      navigate("/user/dashboard");
+    } catch (submitError) {
       error("Đặt hàng thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -326,12 +360,13 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-bold hover:shadow-xl transition-all"
-                >
-                  Hoàn tất đặt hàng
-                </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-bold hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? "Đang tạo đơn hàng..." : "Hoàn tất đặt hàng"}
+                  </button>
               </div>
             </div>
           </div>

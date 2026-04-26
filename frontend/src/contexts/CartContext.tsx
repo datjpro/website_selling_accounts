@@ -10,12 +10,12 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
-  isInCart: (productId: number) => boolean;
+  isInCart: (productId: string) => boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -71,13 +71,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setItems((prevItems) =>
       prevItems.filter((item) => item.product.id !== productId)
     );
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
@@ -110,7 +110,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     return items.reduce((count, item) => count + item.quantity, 0);
   };
 
-  const isInCart = (productId: number): boolean => {
+  const isInCart = (productId: string): boolean => {
     return items.some((item) => item.product.id === productId);
   };
 
