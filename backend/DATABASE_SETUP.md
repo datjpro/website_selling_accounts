@@ -3,13 +3,13 @@
 ## Thông tin k?t n?i m?c d?nh
 - Host: `localhost`
 - Port: `3306`
-- Database: `website_selling_accounts`
+- Database: `shopacc_mysql`
 - User: `root`
 - Password: `123456`
 
 ## Kh?i d?ng nhanh
 ```bash
-docker-compose up -d mysql
+MySQL da chay san tren may; chi can tao DB moi `shopacc_mysql`
 ```
 
 ## Xem logs MySQL
@@ -19,7 +19,7 @@ docker-compose logs mysql
 
 ## Truy c?p MySQL trong container
 ```bash
-docker-compose exec mysql mysql -u root -p123456 website_selling_accounts
+Ket noi MySQL local tren port 3306 bang root/123456
 ```
 
 ## Ch?y l?i script kh?i t?o schema
@@ -29,7 +29,7 @@ Script ngu?n s? th?t n?m t?i:
 N?u c?n reset toàn b? d? li?u dev:
 ```bash
 docker-compose down -v
-docker-compose up -d mysql
+MySQL da chay san tren may; chi can tao DB moi `shopacc_mysql`
 ```
 
 ## Ki?m tra các b?ng dã t?o
@@ -51,9 +51,9 @@ Các b?ng mong d?i:
 
 ## Ki?m tra k?t n?i t? backend
 Backend dùng các bi?n môi tru?ng:
-- `DB_HOST=mysql`
+- `DB_HOST=localhost`
 - `DB_PORT=3306`
-- `DB_NAME=website_selling_accounts`
+- `DB_NAME=shopacc_mysql`
 - `DB_USER=root`
 - `DB_PASSWORD=123456`
 

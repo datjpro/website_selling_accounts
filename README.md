@@ -48,8 +48,8 @@ root/
 ### Bước 2: Clone dự án
 
 ```bash
-git clone https://github.com/datjpro/website_selling_accounts.git
-cd website_selling_accounts
+git clone https://github.com/datjpro/shopacc_mysql.git
+cd shopacc_mysql
 ```
 
 ### Bước 3: Deploy tự động
@@ -115,7 +115,7 @@ Mật khẩu: Admin@2024SecurePass
 
    ```bash
    # Tạo database và chạy init.sql
-   mysql -u root -p123456 website_selling_accounts < src/database/mysql_init.sql
+   mysql -u root -p123456 shopacc_mysql < src/database/mysql_init.sql
    ```
 
 5. Chạy server:
@@ -193,7 +193,7 @@ Mật khẩu: Admin@2024SecurePass
 | NODE_ENV     | Môi trường chạy       | production                   |
 | DB_HOST      | MySQL host       | mysql                        |
 | DB_PORT      | MySQL port       | 3306                         |
-| DB_NAME      | Tên database          | website_selling_accounts     |
+| DB_NAME      | Tên database          | shopacc_mysql     |
 | DB_USER      | User database         | root                         |
 | DB_PASSWORD  | Mật khẩu database     | shopacc_secure_password_2024 |
 | JWT_SECRET   | Secret key cho JWT    | (thay đổi trong production)  |
@@ -370,8 +370,8 @@ ISC
 
 ```powershell
 # 1. Clone project
-git clone https://github.com/datjpro/website_selling_accounts.git
-cd website_selling_accounts
+git clone https://github.com/datjpro/shopacc_mysql.git
+cd shopacc_mysql
 
 # 2. Mở Docker Desktop (đợi 30 giây)
 

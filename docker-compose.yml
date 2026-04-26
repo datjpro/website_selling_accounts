@@ -21,35 +21,13 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DB_HOST=mysql
+      - DB_HOST=host.docker.internal
       - DB_PORT=3306
-      - DB_NAME=website_selling_accounts
+      - DB_NAME=shopacc_mysql
       - DB_USER=root
       - DB_PASSWORD=123456
       - FRONTEND_URL=http://localhost:5173
-    depends_on:
-      mysql:
-        condition: service_healthy
     volumes:
       - ./backend:/app
       - /app/node_modules
       - /app/dist
-
-  mysql:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_DATABASE=website_selling_accounts
-      - MYSQL_ROOT_PASSWORD=123456
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./backend/src/database/mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p123456"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  mysql_data:
