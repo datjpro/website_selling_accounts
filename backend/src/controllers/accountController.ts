@@ -15,7 +15,7 @@ export class AccountController {
 
   static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id, 10);
+      const id = req.params.id;
       const account = await AccountModel.findById(id);
       
       if (!account) {
@@ -34,7 +34,7 @@ export class AccountController {
     try {
       const data: CreateAccountDTO = req.body;
       
-      if (!data.title || !data.description || !data.price || !data.category) {
+      if (!data.title || !data.description || !data.price) {
         res.status(400).json({ error: 'Missing required fields' });
         return;
       }
@@ -49,7 +49,7 @@ export class AccountController {
 
   static async update(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id, 10);
+      const id = req.params.id;
       const data: UpdateAccountDTO = req.body;
       
       const account = await AccountModel.update(id, data);
@@ -68,7 +68,7 @@ export class AccountController {
 
   static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id, 10);
+      const id = req.params.id;
       const deleted = await AccountModel.delete(id);
       
       if (!deleted) {

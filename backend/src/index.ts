@@ -3,13 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import accountRoutes from './routes/accountRoutes';
+import pool from './config/database';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -18,22 +18,35 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use('/api/accounts', accountRoutes);
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+app.get('/api/health', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'OK', message: 'Server is running', database: 'connected' });
+  } catch {
+    res.status(500).json({ status: 'ERROR', message: 'Database connection failed', database: 'disconnected' });
+  }
 });
 
-// Error handling middleware
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const startServer = async (): Promise<void> => {
+  try {
+    await pool.query('SELECT 1');
+    console.log('Database connected successfully');
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+    process.exit(1);
+  }
+};
+
+void startServer();
 
 export default app;
