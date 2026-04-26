@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 import accountRoutes from './routes/accountRoutes';
 import authRoutes from './routes/auth-routes';
 import categoryRoutes from './routes/category-routes';
+import orderRoutes from './routes/order-routes';
 import productRoutes from './routes/product-routes';
+import promotionRoutes from './routes/promotion-routes';
 import reviewRoutes from './routes/review-routes';
 import pool from './config/database';
 import { ensureDatabaseSchema } from './database/schema-init';
@@ -28,6 +30,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/promotions', promotionRoutes);
 
 app.get('/api/health', async (_req, res) => {
   try {
