@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import accountRoutes from './routes/accountRoutes';
+import adminRoutes from './routes/admin-routes';
 import authRoutes from './routes/auth-routes';
 import categoryRoutes from './routes/category-routes';
 import orderRoutes from './routes/order-routes';
@@ -11,6 +12,7 @@ import promotionRoutes from './routes/promotion-routes';
 import reviewRoutes from './routes/review-routes';
 import pool from './config/database';
 import { ensureDatabaseSchema } from './database/schema-init';
+import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
 
@@ -32,20 +34,18 @@ app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
-    res.json({ status: 'OK', message: 'Server is running', database: 'connected' });
+    res.json({ success: true, message: 'Server is running', data: { database: 'connected' } });
   } catch {
-    res.status(500).json({ status: 'ERROR', message: 'Database connection failed', database: 'disconnected' });
+    res.status(500).json({ success: false, message: 'Database connection failed' });
   }
 });
 
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
+app.use(errorHandler);
 
 const startServer = async (): Promise<void> => {
   try {

@@ -1,18 +1,21 @@
 ﻿import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import { UserRepository } from '../repositories/user-repository';
 
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'shopacc_secret_2024') as Secret;
 
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
+    role: 'user' | 'vip' | 'admin';
+    email: string;
   };
 }
 
-export const requireAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const requireAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ success: false, message: 'Unauthorized' });
     return;
   }
 
@@ -21,13 +24,19 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     if (!decoded.id || typeof decoded.id !== 'string') {
-      res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ success: false, message: 'Unauthorized' });
       return;
     }
 
-    req.user = { id: decoded.id };
+    const user = await UserRepository.findById(decoded.id);
+    if (!user) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
+    req.user = { id: user.id, role: user.role, email: user.email };
     next();
   } catch {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 };

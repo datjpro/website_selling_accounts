@@ -1,85 +1,39 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import { AccountModel } from '../models/accountModel';
 import { CreateAccountDTO, UpdateAccountDTO } from '../types/account';
+import { ApiError } from '../utils/api-error';
+import { ApiResponse } from '../utils/api-response';
+import { asyncHandler } from '../utils/async-handler';
 
 export class AccountController {
-  static async getAll(_req: Request, res: Response): Promise<void> {
-    try {
-      const accounts = await AccountModel.findAll();
-      res.json(accounts);
-    } catch (error) {
-      console.error('Error fetching accounts:', error);
-      res.status(500).json({ error: 'Failed to fetch accounts' });
-    }
-  }
+  static getAll = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+    const accounts = await AccountModel.findAll();
+    res.json(new ApiResponse('Accounts loaded', accounts));
+  });
 
-  static async getById(req: Request, res: Response): Promise<void> {
-    try {
-      const id = req.params.id;
-      const account = await AccountModel.findById(id);
-      
-      if (!account) {
-        res.status(404).json({ error: 'Account not found' });
-        return;
-      }
-      
-      res.json(account);
-    } catch (error) {
-      console.error('Error fetching account:', error);
-      res.status(500).json({ error: 'Failed to fetch account' });
-    }
-  }
+  static getById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const account = await AccountModel.findById(req.params.id);
+    if (!account) throw ApiError.notFound('Account not found');
+    res.json(new ApiResponse('Account loaded', account));
+  });
 
-  static async create(req: Request, res: Response): Promise<void> {
-    try {
-      const data: CreateAccountDTO = req.body;
-      
-      if (!data.title || !data.description || !data.price) {
-        res.status(400).json({ error: 'Missing required fields' });
-        return;
-      }
-      
-      const account = await AccountModel.create(data);
-      res.status(201).json(account);
-    } catch (error) {
-      console.error('Error creating account:', error);
-      res.status(500).json({ error: 'Failed to create account' });
-    }
-  }
+  static create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const data: CreateAccountDTO = req.body;
+    if (!data.title || !data.description || !data.price) throw ApiError.badRequest('Missing required fields');
+    const account = await AccountModel.create(data);
+    res.status(201).json(new ApiResponse('Account created', account));
+  });
 
-  static async update(req: Request, res: Response): Promise<void> {
-    try {
-      const id = req.params.id;
-      const data: UpdateAccountDTO = req.body;
-      
-      const account = await AccountModel.update(id, data);
-      
-      if (!account) {
-        res.status(404).json({ error: 'Account not found' });
-        return;
-      }
-      
-      res.json(account);
-    } catch (error) {
-      console.error('Error updating account:', error);
-      res.status(500).json({ error: 'Failed to update account' });
-    }
-  }
+  static update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const data: UpdateAccountDTO = req.body;
+    const account = await AccountModel.update(req.params.id, data);
+    if (!account) throw ApiError.notFound('Account not found');
+    res.json(new ApiResponse('Account updated', account));
+  });
 
-  static async delete(req: Request, res: Response): Promise<void> {
-    try {
-      const id = req.params.id;
-      const deleted = await AccountModel.delete(id);
-      
-      if (!deleted) {
-        res.status(404).json({ error: 'Account not found' });
-        return;
-      }
-      
-      res.status(204).send();
-    } catch (error) {
-      console.error('Error deleting account:', error);
-      res.status(500).json({ error: 'Failed to delete account' });
-    }
-  }
+  static delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const deleted = await AccountModel.delete(req.params.id);
+    if (!deleted) throw ApiError.notFound('Account not found');
+    res.status(204).send();
+  });
 }
