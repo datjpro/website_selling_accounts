@@ -1,9 +1,10 @@
-import express from 'express';
+﻿import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import accountRoutes from './routes/accountRoutes';
 import pool from './config/database';
+import { ensureDatabaseSchema } from './database/schema-init';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 const startServer = async (): Promise<void> => {
   try {
+    await ensureDatabaseSchema();
     await pool.query('SELECT 1');
     console.log('Database connected successfully');
     app.listen(PORT, () => {

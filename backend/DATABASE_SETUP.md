@@ -9,7 +9,7 @@
 
 ## Kh?i d?ng nhanh
 ```bash
-MySQL da chay san tren may; chi can tao DB moi `shopacc_mysql`
+Backend container se tu tao database `shopacc_mysql` neu chua ton tai va tu chay schema 9 bang khi khoi dong
 ```
 
 ## Xem logs MySQL
@@ -29,7 +29,7 @@ Script ngu?n s? th?t n?m t?i:
 N?u c?n reset toàn b? d? li?u dev:
 ```bash
 docker-compose down -v
-MySQL da chay san tren may; chi can tao DB moi `shopacc_mysql`
+Backend container se tu tao database `shopacc_mysql` neu chua ton tai va tu chay schema 9 bang khi khoi dong
 ```
 
 ## Ki?m tra các b?ng dã t?o
