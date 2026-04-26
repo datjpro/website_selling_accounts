@@ -1,7 +1,8 @@
-ï»¿import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { UserRepository, UserEntity } from '../repositories/user-repository';
 import { AuthResponse, UserResponse, RegisterData, LoginCredentials } from '../types/auth';
+import { ApiError } from '../utils/api-error';
 
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'shopacc_secret_2024') as Secret;
 const JWT_EXPIRES_IN: SignOptions['expiresIn'] =
@@ -29,7 +30,10 @@ const generateToken = (userId: string): string => {
 export class AuthService {
   static async register(data: RegisterData): Promise<AuthResponse> {
     const existing = await UserRepository.findByEmail(data.email);
-    if (existing) throw new Error('Email already registered');
+    if (existing) throw ApiError.conflict('Email dã du?c dang ký');
+
+    const existingUsername = await UserRepository.findByUsername(data.username);
+    if (existingUsername) throw ApiError.conflict('Tên dang nh?p dã t?n t?i');
 
     const passwordHash = await bcrypt.hash(data.password, 10);
     const userId = await UserRepository.create({
@@ -41,7 +45,7 @@ export class AuthService {
     });
 
     const user = await UserRepository.findById(userId);
-    if (!user) throw new Error('Failed to retrieve created user');
+    if (!user) throw ApiError.internal('Không th? t?i user sau khi t?o');
 
     return {
       token: generateToken(userId),
@@ -51,12 +55,12 @@ export class AuthService {
 
   static async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const user = await UserRepository.findByEmail(credentials.email);
-    if (!user) throw new Error('Invalid email or password');
+    if (!user) throw ApiError.badRequest('Email ho?c m?t kh?u không dúng');
 
     const isMatch = await bcrypt.compare(credentials.password, user.password_hash);
-    if (!isMatch) throw new Error('Invalid email or password');
+    if (!isMatch) throw ApiError.badRequest('Email ho?c m?t kh?u không dúng');
 
-    if (user.status !== 'active') throw new Error(`User account is ${user.status}`);
+    if (user.status !== 'active') throw ApiError.forbidden(`Tài kho?n dang ? tr?ng thái ${user.status}`);
 
     return {
       token: generateToken(user.id),
@@ -66,7 +70,7 @@ export class AuthService {
 
   static async getMe(userId: string): Promise<UserResponse> {
     const user = await UserRepository.findById(userId);
-    if (!user) throw new Error('User not found');
+    if (!user) throw ApiError.notFound('Không tìm th?y ngu?i dùng');
     return mapUserResponse(user);
   }
 
@@ -81,10 +85,10 @@ export class AuthService {
 
   static async changePassword(userId: string, oldPass: string, newPass: string): Promise<void> {
     const user = await UserRepository.findById(userId);
-    if (!user) throw new Error('User not found');
+    if (!user) throw ApiError.notFound('Không tìm th?y ngu?i dùng');
 
     const isMatch = await bcrypt.compare(oldPass, user.password_hash);
-    if (!isMatch) throw new Error('Old password incorrect');
+    if (!isMatch) throw ApiError.badRequest('M?t kh?u cu không dúng');
 
     const passwordHash = await bcrypt.hash(newPass, 10);
     await UserRepository.update(userId, { password_hash: passwordHash });

@@ -1,5 +1,6 @@
 ﻿import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { ApiError } from '../utils/api-error';
 
 export interface UserEntity {
   id: string;
@@ -19,6 +20,11 @@ export interface UserEntity {
 }
 
 export class UserRepository {
+  static async findByUsername(username: string): Promise<UserEntity | null> {
+    const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM users WHERE username = ? LIMIT 1', [username]);
+    return (rows[0] as UserEntity) || null;
+  }
+
   static async findByEmail(email: string): Promise<UserEntity | null> {
     const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
     return (rows[0] as UserEntity) || null;
@@ -33,20 +39,29 @@ export class UserRepository {
     const [idRows] = await pool.query<RowDataPacket[]>('SELECT UUID() AS id');
     const generatedId = idRows[0].id as string;
 
-    await pool.query<ResultSetHeader>(
-      `INSERT INTO users (id, username, email, password_hash, full_name, phone, role, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        generatedId,
-        payload.username,
-        payload.email,
-        payload.password_hash,
-        payload.full_name ?? null,
-        payload.phone ?? null,
-        payload.role ?? 'user',
-        payload.status ?? 'active',
-      ]
-    );
+    try {
+      await pool.query<ResultSetHeader>(
+        `INSERT INTO users (id, username, email, password_hash, full_name, phone, role, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          generatedId,
+          payload.username,
+          payload.email,
+          payload.password_hash,
+          payload.full_name ?? null,
+          payload.phone ?? null,
+          payload.role ?? 'user',
+          payload.status ?? 'active',
+        ]
+      );
+    } catch (error) {
+      const mysqlError = error as { code?: string };
+      if (mysqlError.code === 'ER_DUP_ENTRY') {
+        throw ApiError.conflict('Email hoặc username đã tồn tại');
+      }
+
+      throw error;
+    }
     return generatedId;
   }
 
