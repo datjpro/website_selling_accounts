@@ -57,7 +57,7 @@ Làm cụm `categories`, `products`, `product_images`, `reviews` để frontend 
 - Frontend hiện kỳ vọng model user giàu hơn schema `users` hiện tại.
 - Phase implement sẽ cần chốt lại fields user, password handling và auth token flow.
 
-## Phase 3: Orders, Promotions, Transactions
+## Phase 3: Orders, Promotions, Transactions\nĐã triển khai current state cho các endpoint cốt lõi của orders và promotions.
 ### Endpoint mục tiêu
 - `POST /orders`
 - `GET /orders/my-orders`
@@ -77,3 +77,4 @@ Làm cụm `categories`, `products`, `product_images`, `reviews` để frontend 
 - Schema có thể giữ `snake_case`.
 - API response cần thống nhất một format duy nhất cho toàn bộ module.
 - Mỗi phase phải đi kèm cập nhật docs, lint, build và test phù hợp.
+

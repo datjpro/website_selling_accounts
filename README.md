@@ -59,7 +59,7 @@ npm run dev
 - `GET /api/products/search`
 - `GET /api/reviews/product/:productId`
 - `POST /api/reviews`
-- `POST /api/reviews/:reviewId/helpful`
+- `POST /api/reviews/:reviewId/helpful`\n- `GET /api/promotions`\n- `GET /api/promotions/active`\n- `POST /api/promotions/validate`\n- `POST /api/orders`\n- `GET /api/orders/my-orders`\n- `GET /api/orders/:id`\n- `GET /api/orders/number/:orderNumber`\n- `POST /api/orders/:id/cancel`
 
 ## Database
 Nguồn sự thật cho schema và setup:
@@ -70,3 +70,4 @@ Nguồn sự thật cho schema và setup:
 - Backend không chạy bằng Docker cho cổng `3000` ở trạng thái hiện tại.
 - Backend local sẽ tự đảm bảo DB `shopacc_mysql` tồn tại và đủ schema Catalog hiện tại.
 - Roadmap API tiếp theo nằm ở `docs/api-roadmap.md`.
+
