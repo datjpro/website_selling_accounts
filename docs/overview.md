@@ -1,23 +1,23 @@
-# Overview
+﻿# Overview
 
-## Mục đích dự án
-- Xây dựng website bán tài khoản game.
-- Hệ thống phục vụ hai nhóm chính: người dùng mua hàng và quản trị viên vận hành hệ thống.
+## Mục tiêu
+- Bán tài khoản game trực tuyến qua web.
+- Tách biệt rõ frontend, backend và database.
+- Xây dựng API theo từng phase, bắt đầu từ Catalog.
 
-## Công nghệ chính
-- `frontend/`: React + Vite + TypeScript.
-- `backend/`: Node.js + Express + TypeScript.
-- Database: MySQL.
-- Hạ tầng local/dev: Docker Compose.
+## Runtime hiện tại
+- Frontend: Vite dev server tại `localhost:5173`
+- Backend: Docker container tại `localhost:3000`
+- Database: MySQL local tại `localhost:3306`
+- Database name: `shopacc_mysql`
 
-## Tư duy tổ chức dự án
-- Ưu tiên rõ ràng trách nhiệm từng phần.
-- Tách giao diện, nghiệp vụ và truy cập dữ liệu.
-- Tài liệu phải đủ để người quay lại dự án sau thời gian dài vẫn nắm được cấu trúc.
+## Kiến trúc hiện tại
+- Frontend gọi backend qua REST API.
+- Backend dùng Express + TypeScript.
+- Backend tự chạy `ensureDatabaseSchema()` khi start.
+- Schema nền tảng hiện có 9 bảng trong MySQL.
 
-## Phạm vi lõi của hệ thống
-- Hiển thị danh sách tài khoản game.
-- Tìm kiếm, lọc, xem chi tiết.
-- Đặt hàng và quản lý đơn hàng.
-- Xác thực người dùng và phân quyền admin.
-- Quản trị sản phẩm, người dùng, đơn hàng và dữ liệu liên quan.
+## Tài liệu nguồn sự thật
+- Setup database: `backend/DATABASE_SETUP.md`
+- Schema database: `backend/DATABASE_SCHEMA.md`
+- Roadmap API: `docs/api-roadmap.md`

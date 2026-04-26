@@ -1,32 +1,34 @@
-# Structure
+﻿# Structure
 
 ## Root
 - `frontend/`: ứng dụng giao diện người dùng.
 - `backend/`: API và xử lý nghiệp vụ.
 - `docs/`: tài liệu lõi của dự án.
-- `docker-compose.yml`: cấu hình chạy nhiều service cục bộ.
-- `README.md`: hướng dẫn cài đặt, chạy dự án và thông tin nền.
+- `docker-compose.yml`: cấu hình chạy frontend/backend bằng Docker.
+- `README.md`: hướng dẫn cài đặt và chạy dự án.
 
-## Backend structure đề xuất
+## Backend current state
+Backend hiện có các nhóm thư mục sau:
 - `src/routes/`: khai báo endpoint.
-- `src/controllers/`: nhận request, trả response.
-- `src/services/`: business logic.
-- `src/repositories/` hoặc `src/models/`: truy cập dữ liệu.
-- `src/middleware/`: auth, validate, error handling.
-- `src/utils/`: helper dùng chung.
-- `src/types/`: kiểu dữ liệu dùng chung nếu cần.
+- `src/controllers/`: nhận request và trả response.
+- `src/models/`: truy cập dữ liệu hiện tại.
+- `src/config/`: cấu hình database và runtime.
+- `src/database/`: script schema và logic tự khởi tạo DB.
+- `src/types/`: kiểu dữ liệu dùng chung.
 
-## Frontend structure đề xuất
-- `src/pages/`: các màn hình chính theo route.
+## Khoảng trống hiện tại
+- Chưa có `services/` đầy đủ cho toàn bộ domain.
+- Chưa có `repositories/` tách riêng khỏi `models/`.
+- Chưa có module hóa đầy đủ theo từng bounded context như catalog, auth, orders.
+
+## Hướng cấu trúc giai đoạn API kế tiếp
+- Đích đến là `route -> controller -> service -> repository`.
+- Catalog là module đầu tiên được chuyển sang pattern đầy đủ.
+- Các module tiếp theo sẽ dùng cùng convention response, error và validation.
+
+## Frontend current state
+- `src/pages/`: màn hình chính.
 - `src/components/`: UI dùng lại.
-- `src/services/` hoặc `src/api/`: toàn bộ HTTP client và API wrapper.
-- `src/hooks/`: custom hooks.
-- `src/context/`: state dùng toàn app.
-- `src/types/`: type dùng chung.
-- `src/assets/`: ảnh, icon, style tĩnh.
-
-## Nguyên tắc mở rộng
-- Nếu thêm module mới, phải xác định rõ nó thuộc layer nào.
-- Không thêm logic database vào route.
-- Không thêm logic gọi API trực tiếp rải rác trong nhiều component nếu có thể gom vào service.
-- Nếu cấu trúc thực tế khác đề xuất ở trên, tài liệu này phải được cập nhật để phản ánh đúng hiện trạng.
+- `src/services/`: các API client wrapper đang định nghĩa contract backend mục tiêu.
+- `src/contexts/`: state chia sẻ toàn app.
+- `src/types.ts`: kiểu dữ liệu UI tổng quát.

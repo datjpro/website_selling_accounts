@@ -1,22 +1,28 @@
-# Conventions
+﻿# Conventions
 
-## Code conventions
-- Viết code nhất quán với style hiện có trong từng thư mục.
-- Chỉ tạo abstraction mới khi thực sự giúp code rõ hơn.
-- Không đổi tên hàng loạt nếu không cần thiết.
+## Code
+- Giữ thay đổi nhỏ, đúng phạm vi user yêu cầu.
+- Sửa đúng gốc vấn đề, tránh workaround nếu không cần.
+- Khi thay đổi kiến trúc, API hoặc schema thì cập nhật `docs/` cùng lúc.
 
-## Naming conventions
-- Folder/file ưu tiên `kebab-case`.
-- React component, type, interface ưu tiên `PascalCase`.
-- Variable/function ưu tiên `camelCase`.
-- Hằng số dùng `UPPER_SNAKE_CASE` nếu khu vực đó đang theo kiểu này.
+## Naming
+- File và folder: `kebab-case`
+- Function và variable: `camelCase`
+- Type, interface, class: `PascalCase`
+- DB column: `snake_case`
 
-## API conventions
-- Response nên thống nhất một format xuyên suốt.
-- Error message nên rõ nghĩa, không mơ hồ.
-- Validation nằm gần entry point và/hoặc middleware, không để dữ liệu xấu đi quá sâu.
+## API
+- Chọn một format response thống nhất cho từng phase API.
+- Giai đoạn API sắp tới cần khóa rõ mapping giữa DB và API response.
+- Validation đặt gần entry point hoặc middleware.
+- Error message rõ nghĩa, tránh mơ hồ.
 
-## Git và thay đổi mã nguồn
-- Mỗi thay đổi nên nhỏ, rõ mục đích.
-- Sửa đúng phạm vi user yêu cầu.
-- Nếu thay đổi ảnh hưởng kiến trúc, cập nhật `docs/` cùng lúc.
+## Backend architecture
+- Hiện tại có thể còn `route -> controller -> model` ở một số phần cũ.
+- Đích đến là `route -> controller -> service -> repository`.
+- Module Catalog sẽ là nơi áp dụng pattern đích đầu tiên.
+
+## Database
+- Runtime hiện tại dùng MySQL local trên `localhost:3306`.
+- Backend Docker kết nối qua `host.docker.internal`.
+- Database hiện tại là `shopacc_mysql`.

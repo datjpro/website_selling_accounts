@@ -1,17 +1,29 @@
-# Backend Notes
+﻿# Backend Notes
 
 ## Vai trò
-- Cung cấp API cho frontend.
-- Xử lý auth, business logic, truy cập database.
+- Cung cấp REST API cho frontend.
+- Kết nối MySQL local từ backend container.
+- Tự khởi tạo database `shopacc_mysql` và chạy schema nền tảng khi khởi động.
 
-## Pattern khuyến nghị
-- `routes` chỉ map endpoint.
-- `controllers` xử lý request/response.
-- `services` xử lý nghiệp vụ.
-- `repositories/models` thao tác dữ liệu.
-- `middleware` xử lý concern dùng chung.
+## Startup flow hiện tại
+1. Container backend khởi động.
+2. Load biến môi trường.
+3. Chạy `ensureDatabaseSchema()`.
+4. Tạo database nếu chưa tồn tại.
+5. Chạy `backend/src/database/mysql_init.sql` để đảm bảo đủ 9 bảng.
+6. Kết nối MySQL.
+7. Expose `GET /api/health` và các route API hiện có.
 
-## Nguyên tắc quan trọng
-- Không để query database rải rác nhiều nơi nếu có thể gom lại.
-- Không để logic phân quyền nằm lẫn trong từng controller nếu đã có middleware.
-- Các thay đổi schema hoặc endpoint phải được phản ánh vào docs liên quan.
+## Pattern hiện tại
+- `routes`: map endpoint.
+- `controllers`: xử lý request/response.
+- `models`: truy cập dữ liệu.
+
+## Pattern đích
+- `route -> controller -> service -> repository`
+- Catalog sẽ là module đầu tiên được triển khai đúng pattern đích.
+
+## Source of truth
+- Schema: `backend/DATABASE_SCHEMA.md`
+- Setup DB: `backend/DATABASE_SETUP.md`
+- Roadmap API: `docs/api-roadmap.md`
