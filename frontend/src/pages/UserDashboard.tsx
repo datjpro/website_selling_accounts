@@ -1,170 +1,101 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+﻿import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useCart } from "../contexts/CartContext";
-import {
-  User,
-  Package,
-  Heart,
-  Settings,
-  LogOut,
-  ShoppingCart,
-  CreditCard,
-  Bell,
-  History,
-} from "lucide-react";
+import { orderService, type Order } from "../services/orderService";
+import { authService } from "../services/authService";
+import { Package, Settings, User, LogOut, ShoppingCart, CreditCard, History, Save, KeyRound } from "lucide-react";
+
+const formatVnd = (value: number): string =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
 
 const UserDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-  const { getCartCount } = useCart();
-  const [activeTab, setActiveTab] = useState<
-    "profile" | "orders" | "wishlist" | "settings"
-  >("profile");
+  const { user, logout, updateUser } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "wishlist" | "settings">("profile");
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = "/";
+    navigate("/");
   };
 
-  const stats = [
-    {
-      label: "Đơn hàng",
-      value: user?.totalOrders || 0,
-      icon: Package,
-      color: "blue",
-    },
-    {
-      label: "Giỏ hàng",
-      value: getCartCount(),
-      icon: ShoppingCart,
-      color: "green",
-    },
-    {
-      label: "Số dư",
-      value: `${(user?.balance || 0).toLocaleString("vi-VN")}đ`,
-      icon: CreditCard,
-      color: "purple",
-    },
-    {
-      label: "Tổng chi tiêu",
-      value: `${(user?.totalSpent || 0).toLocaleString("vi-VN")}đ`,
-      icon: History,
-      color: "orange",
-    },
-  ];
-
-  const menuItems = [
-    { id: "profile", label: "Thông tin cá nhân", icon: User },
-    { id: "orders", label: "Đơn hàng của tôi", icon: Package },
-    { id: "wishlist", label: "Yêu thích", icon: Heart },
-    { id: "settings", label: "Cài đặt", icon: Settings },
-  ];
+  const stats = useMemo(
+    () => [
+      { label: "Đơn hàng", value: user?.totalOrders || 0, icon: Package },
+      { label: "Số dư", value: formatVnd(user?.balance || 0), icon: CreditCard },
+      { label: "Tổng chi tiêu", value: formatVnd(user?.totalSpent || 0), icon: History },
+      { label: "Tài khoản", value: user?.role?.toUpperCase() || "USER", icon: ShoppingCart },
+    ],
+    [user]
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold">
-                {user?.username?.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {user?.fullName || user?.username}
-                </h1>
-                <p className="text-gray-500">{user?.email}</p>
-                <div className="mt-2 flex items-center space-x-2">
-                  {user?.role === "admin" && (
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
-                      Admin
-                    </span>
-                  )}
-                  {user?.role === "vip" && (
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
-                      VIP
-                    </span>
-                  )}
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                    {user?.status === "active" ? "Hoạt động" : user?.status}
-                  </span>
-                </div>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 space-y-8">
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold">
+              {user?.username?.charAt(0).toUpperCase()}
             </div>
-            <div className="flex items-center space-x-3">
-              <Link
-                to="/notifications"
-                className="p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors relative"
-              >
-                <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <LogOut size={20} />
-                <span>Đăng xuất</span>
-              </button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{user?.fullName || user?.username}</h1>
+              <p className="text-gray-500">{user?.email}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                  {user?.role?.toUpperCase()}
+                </span>
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                  {user?.status === "active" ? "Hoạt động" : user?.status}
+                </span>
+              </div>
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <LogOut size={18} />
+            Đăng xuất
+          </button>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {stats.map((stat) => {
             const Icon = stat.icon;
-            const colorClasses = {
-              blue: "from-blue-500 to-blue-600",
-              green: "from-green-500 to-green-600",
-              purple: "from-purple-500 to-purple-600",
-              orange: "from-orange-500 to-orange-600",
-            };
-
             return (
-              <div
-                key={stat.label}
-                className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200"
-              >
+              <div key={stat.label} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={`w-12 h-12 bg-gradient-to-br ${
-                      colorClasses[stat.color as keyof typeof colorClasses]
-                    } rounded-lg flex items-center justify-center`}
-                  >
-                    <Icon size={24} className="text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <Icon size={22} />
                   </div>
                 </div>
-                <p className="text-gray-500 text-sm">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {stat.value}
-                </p>
+                <div className="text-sm text-gray-500">{stat.label}</div>
+                <div className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</div>
               </div>
             );
           })}
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200 p-4">
-              <nav className="space-y-1">
-                {menuItems.map((item) => {
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 sticky top-6">
+              <nav className="space-y-2">
+                {[
+                  { id: "profile", label: "Thông tin cá nhân", icon: User },
+                  { id: "orders", label: "Đơn hàng của tôi", icon: Package },
+                  { id: "wishlist", label: "Yêu thích", icon: ShoppingCart },
+                  { id: "settings", label: "Cài đặt", icon: Settings },
+                ].map((item) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.id;
                   return (
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id as typeof activeTab)}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                        isActive
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-                          : "text-gray-700 hover:bg-blue-50"
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        isActive ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" : "text-gray-700 hover:bg-blue-50"
                       }`}
                     >
-                      <Icon size={20} />
+                      <Icon size={18} />
                       <span className="font-medium">{item.label}</span>
                     </button>
                   );
@@ -173,10 +104,9 @@ const UserDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Content Area */}
           <div className="lg:col-span-3">
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200 p-8">
-              {activeTab === "profile" && <ProfileTab user={user} />}
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+              {activeTab === "profile" && user && <ProfileTab user={user} onSave={updateUser} />}
               {activeTab === "orders" && <OrdersTab />}
               {activeTab === "wishlist" && <WishlistTab />}
               {activeTab === "settings" && <SettingsTab />}
@@ -188,127 +118,189 @@ const UserDashboard: React.FC = () => {
   );
 };
 
-// Profile Tab
-const ProfileTab: React.FC<{ user: any }> = ({ user }) => {
+const ProfileTab: React.FC<{
+  user: NonNullable<ReturnType<typeof useAuth>["user"]>;
+  onSave: (data: { fullName?: string; phone?: string; avatarUrl?: string }) => Promise<void>;
+}> = ({ user, onSave }) => {
+  const [formData, setFormData] = useState({
+    fullName: user.fullName || "",
+    email: user.email,
+    phone: user.phone || "",
+    avatarUrl: user.avatarUrl || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage(null);
+    try {
+      await onSave({
+        fullName: formData.fullName || undefined,
+        phone: formData.phone || undefined,
+        avatarUrl: formData.avatarUrl || undefined,
+      });
+      setMessage("Cập nhật thông tin thành công.");
+    } catch {
+      setMessage("Không thể cập nhật thông tin.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <h2 className="text-2xl font-bold text-gray-900">Thông tin cá nhân</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tên đăng nhập
-          </label>
-          <input
-            type="text"
-            value={user?.username || ""}
-            disabled
-            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
+          <input type="text" value={user.username} disabled className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Họ và tên
-          </label>
-          <input
-            type="text"
-            value={user?.fullName || ""}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Họ và tên</label>
+          <input type="text" value={formData.fullName} onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email
-          </label>
-          <input
-            type="email"
-            value={user?.email || ""}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <input type="email" value={formData.email} disabled className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Số điện thoại
-          </label>
-          <input
-            type="tel"
-            value={user?.phone || ""}
-            placeholder="Chưa cập nhật"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
+          <input type="tel" value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
         </div>
       </div>
-      <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
-        Cập nhật thông tin
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Avatar URL</label>
+        <input type="url" value={formData.avatarUrl} onChange={(e) => setFormData((prev) => ({ ...prev, avatarUrl: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
+      </div>
+      {message && <p className="text-sm text-blue-600">{message}</p>}
+      <button disabled={saving} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold">
+        <Save size={18} />
+        {saving ? "Đang lưu..." : "Cập nhật thông tin"}
       </button>
-    </div>
+    </form>
   );
 };
 
-// Orders Tab
 const OrdersTab: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const data = await orderService.getMyOrders();
+        setOrders(data);
+      } catch {
+        setMessage("Không thể tải danh sách đơn hàng.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadOrders();
+  }, []);
+
+  if (loading) {
+    return <div className="py-12 text-center text-gray-500">Đang tải đơn hàng...</div>;
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900">Đơn hàng của tôi</h2>
+        <div className="text-center py-12">
+          <Package size={64} className="mx-auto text-gray-300 mb-4" />
+          <p className="text-gray-500">Bạn chưa có đơn hàng nào</p>
+          <Link to="/products" className="inline-block mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg">
+            Mua sắm ngay
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Đơn hàng của tôi</h2>
-      <div className="text-center py-12">
-        <Package size={64} className="mx-auto text-gray-300 mb-4" />
-        <p className="text-gray-500">Bạn chưa có đơn hàng nào</p>
-        <Link
-          to="/products"
-          className="inline-block mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all"
-        >
-          Mua sắm ngay
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-// Wishlist Tab
-const WishlistTab: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Danh sách yêu thích</h2>
-      <div className="text-center py-12">
-        <Heart size={64} className="mx-auto text-gray-300 mb-4" />
-        <p className="text-gray-500">Chưa có sản phẩm yêu thích</p>
-      </div>
-    </div>
-  );
-};
-
-// Settings Tab
-const SettingsTab: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Cài đặt tài khoản</h2>
+      {message && <p className="text-sm text-red-600">{message}</p>}
       <div className="space-y-4">
-        <div className="p-6 border border-gray-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Đổi mật khẩu
-          </h3>
-          <div className="space-y-4">
-            <input
-              type="password"
-              placeholder="Mật khẩu hiện tại"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="password"
-              placeholder="Mật khẩu mới"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="password"
-              placeholder="Xác nhận mật khẩu mới"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold">
-              Đổi mật khẩu
-            </button>
-          </div>
-        </div>
+        {orders.map((order) => (
+          <Link key={order.id} to={`/user/orders/${order.id}`} className="block border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-md transition-all">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="font-bold text-gray-900">{order.orderNumber}</div>
+                <div className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleString("vi-VN")}</div>
+              </div>
+              <div className="text-sm text-gray-600">{order.items.length} sản phẩm</div>
+              <div className="font-bold text-orange-600">{formatVnd(order.finalAmount)}</div>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">{order.status}</span>
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">{order.paymentStatus}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
+  );
+};
+
+const WishlistTab: React.FC = () => (
+  <div className="space-y-4">
+    <h2 className="text-2xl font-bold text-gray-900">Yêu thích</h2>
+    <p className="text-gray-600">Phần yêu thích chưa được hỗ trợ endpoint riêng. Tạm thời bạn có thể lưu lại sản phẩm bằng giỏ hàng hoặc quay lại danh mục để xem thêm.</p>
+    <Link to="/products" className="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg">
+      Xem sản phẩm
+    </Link>
+  </div>
+);
+
+const SettingsTab: React.FC = () => {
+  const [formData, setFormData] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setMessage(null);
+    if (!formData.oldPassword || !formData.newPassword) {
+      setMessage("Vui lòng nhập đầy đủ mật khẩu cũ và mật khẩu mới.");
+      return;
+    }
+    if (formData.newPassword !== formData.confirmPassword) {
+      setMessage("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await authService.changePassword(formData.oldPassword, formData.newPassword);
+      setMessage("Đổi mật khẩu thành công.");
+      setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    } catch {
+      setMessage("Không thể đổi mật khẩu.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <h2 className="text-2xl font-bold text-gray-900">Đổi mật khẩu</h2>
+      <div className="grid grid-cols-1 gap-4 max-w-2xl">
+        <input type="password" placeholder="Mật khẩu cũ" value={formData.oldPassword} onChange={(e) => setFormData((prev) => ({ ...prev, oldPassword: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
+        <input type="password" placeholder="Mật khẩu mới" value={formData.newPassword} onChange={(e) => setFormData((prev) => ({ ...prev, newPassword: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
+        <input type="password" placeholder="Xác nhận mật khẩu mới" value={formData.confirmPassword} onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))} className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
+      </div>
+      {message && <p className="text-sm text-blue-600">{message}</p>}
+      <button disabled={saving} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold">
+        <KeyRound size={18} />
+        {saving ? "Đang cập nhật..." : "Đổi mật khẩu"}
+      </button>
+    </form>
   );
 };
 
