@@ -8,6 +8,10 @@ const router = Router();
 router.use(requireAuth, requireAdmin);
 
 router.get('/users', AdminController.listUsers);
+router.get('/categories', AdminController.listCategories);
+router.get('/products', AdminController.listProducts);
+router.get('/orders', AdminController.listOrders);
+router.get('/promotions', AdminController.listPromotions);
 router.post('/categories', AdminController.createCategory);
 router.put('/categories/:id', AdminController.updateCategory);
 router.delete('/categories/:id', AdminController.deleteCategory);

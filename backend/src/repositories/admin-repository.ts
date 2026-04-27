@@ -7,6 +7,44 @@ export class AdminRepository {
     return rows;
   }
 
+  static async listCategories(): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      'SELECT id, name, slug, description, image_url, icon_url, is_active FROM categories ORDER BY sort_order ASC, id DESC'
+    );
+    return rows;
+  }
+
+  static async listProducts(): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT p.id, p.category_id, p.title, p.name, p.slug, p.game_title, p.description, p.price, p.original_price,
+              p.stock_quantity, p.sold_count, p.status, p.is_featured, p.is_hot, p.badge, p.created_at,
+              c.name AS category_name, c.slug AS category_slug
+       FROM products p
+       LEFT JOIN categories c ON c.id = p.category_id
+       ORDER BY p.created_at DESC`
+    );
+    return rows;
+  }
+
+  static async listOrders(): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id, order_number, user_id, customer_name, customer_email, final_amount, status, payment_status, created_at
+       FROM orders
+       ORDER BY created_at DESC`
+    );
+    return rows;
+  }
+
+  static async listPromotions(): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id, code, title, description, discount_type, discount_value, min_order_amount, max_discount_amount,
+              usage_limit, usage_count, usage_per_user, is_active, badge, start_date, end_date
+       FROM promotions
+       ORDER BY created_at DESC`
+    );
+    return rows;
+  }
+
   static async updateOrderStatus(id: string, status: string, paymentStatus?: string): Promise<void> {
     const fields: string[] = ['status = ?'];
     const values: Array<string> = [status];

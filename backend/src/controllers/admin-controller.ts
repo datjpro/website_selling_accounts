@@ -10,6 +10,26 @@ export class AdminController {
     res.json(new ApiResponse('Users loaded', users));
   });
 
+  static listCategories = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+    const categories = await AdminService.listCategories();
+    res.json(new ApiResponse('Categories loaded', categories));
+  });
+
+  static listProducts = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+    const products = await AdminService.listProducts();
+    res.json(new ApiResponse('Products loaded', products));
+  });
+
+  static listOrders = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+    const orders = await AdminService.listOrders();
+    res.json(new ApiResponse('Orders loaded', orders));
+  });
+
+  static listPromotions = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+    const promotions = await AdminService.listPromotions();
+    res.json(new ApiResponse('Promotions loaded', promotions));
+  });
+
   static createCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     if (!req.body?.name || !req.body?.slug) throw ApiError.badRequest('Name and slug are required');
     const category = await AdminService.createCategory(req.body);
