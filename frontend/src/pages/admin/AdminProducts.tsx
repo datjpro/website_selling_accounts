@@ -1,269 +1,395 @@
-import React, { useState } from "react";
-import {
-  Search,
-  Filter,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  Star,
-} from "lucide-react";
+﻿import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Plus, Edit, Trash2, Eye, Save, X } from "lucide-react";
+import { adminService, type AdminProductPayload } from "../../services/adminService";
+import type { Product, Category } from "../../services/productService";
+
+const formatVnd = (value: number): string =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
+
+const emptyForm: AdminProductPayload = {
+  title: "",
+  name: "",
+  slug: "",
+  gameTitle: "",
+  description: "",
+  price: 0,
+  stockQuantity: 1,
+  status: "active",
+};
 
 const AdminProducts: React.FC = () => {
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterGame, setFilterGame] = useState("all");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [formData, setFormData] = useState<AdminProductPayload>(emptyForm);
 
-  const products = [
-    {
-      id: 1,
-      name: "Liên Quân Mobile - VIP 15",
-      game: "Liên Quân Mobile",
-      price: "2,500,000đ",
-      stock: 5,
-      sold: 234,
-      rating: 4.8,
-      status: "active",
-      image:
-        "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100",
-    },
-    {
-      id: 2,
-      name: "Free Fire - Căn cước + Full đồ",
-      game: "Free Fire",
-      price: "1,800,000đ",
-      stock: 12,
-      sold: 189,
-      rating: 4.9,
-      status: "active",
-      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=100",
-    },
-    {
-      id: 3,
-      name: "PUBG Mobile - Conqueror",
-      game: "PUBG Mobile",
-      price: "3,200,000đ",
-      stock: 0,
-      sold: 156,
-      rating: 4.7,
-      status: "out_of_stock",
-      image:
-        "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=100",
-    },
-    {
-      id: 4,
-      name: "Liên Minh: Tốc Chiến - Kim Cương",
-      game: "Liên Minh: Tốc Chiến",
-      price: "2,100,000đ",
-      stock: 8,
-      sold: 201,
-      rating: 4.6,
-      status: "active",
-      image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=100",
-    },
-    {
-      id: 5,
-      name: "Valorant - Immortal Rank",
-      game: "Valorant",
-      price: "4,500,000đ",
-      stock: 3,
-      sold: 98,
-      rating: 4.9,
-      status: "active",
-      image: "https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=100",
-    },
-  ];
-
-  const games = [
-    "all",
-    "Liên Quân Mobile",
-    "Free Fire",
-    "PUBG Mobile",
-    "Liên Minh: Tốc Chiến",
-    "Valorant",
-  ];
-
-  const getStatusBadge = (status: string, stock: number) => {
-    if (status === "out_of_stock" || stock === 0) {
-      return (
-        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-          Hết hàng
-        </span>
-      );
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [productsData, categoriesData] = await Promise.all([
+        adminService.getProducts(),
+        adminService.getCategories(),
+      ]);
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error("Failed to load admin products", error);
+    } finally {
+      setLoading(false);
     }
-    if (stock <= 5) {
-      return (
-        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-          Sắp hết
-        </span>
-      );
-    }
-    return (
-      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-        Còn hàng
-      </span>
-    );
   };
+
+  useEffect(() => {
+    void loadData();
+  }, []);
+
+  const resetEditor = () => {
+    setIsAdding(false);
+    setEditingProduct(null);
+    setFormData(emptyForm);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
+      return;
+    }
+
+    try {
+      await adminService.deleteProduct(id);
+      setProducts((previousProducts) => previousProducts.filter((product) => product.id !== id));
+    } catch {
+      alert("Không thể xóa sản phẩm.");
+    }
+  };
+
+  const handleSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      if (editingProduct) {
+        const updatedProduct = await adminService.updateProduct(editingProduct.id, formData);
+        setProducts((previousProducts) =>
+          previousProducts.map((product) =>
+            product.id === updatedProduct.id ? updatedProduct : product
+          )
+        );
+      } else {
+        const createdProduct = await adminService.createProduct(formData);
+        setProducts((previousProducts) => [createdProduct, ...previousProducts]);
+      }
+
+      resetEditor();
+    } catch {
+      alert("Không thể lưu sản phẩm. Vui lòng kiểm tra dữ liệu và thử lại.");
+    }
+  };
+
+  const startEdit = (product: Product) => {
+    setEditingProduct(product);
+    setIsAdding(false);
+    setFormData({
+      categoryId: product.categoryId,
+      title: product.name,
+      name: product.name,
+      slug: product.slug,
+      gameTitle: product.gameTitle,
+      description: product.description,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      stockQuantity: product.stockQuantity,
+      status: product.status,
+      isFeatured: product.isFeatured,
+      isHot: product.isHot,
+    });
+  };
+
+  const filteredProducts = products.filter((product) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(query) ||
+      product.gameTitle.toLowerCase().includes(query) ||
+      product.slug.toLowerCase().includes(query)
+    );
+  });
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
-          <p className="text-gray-500 mt-1">
-            Quản lý tất cả sản phẩm trong cửa hàng
-          </p>
+          <p className="text-gray-500 mt-1">Tổng cộng {products.length} sản phẩm thực tế từ hệ thống.</p>
         </div>
-        <button className="mt-4 md:mt-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2">
-          <Plus size={20} />
-          <span>Thêm sản phẩm mới</span>
+        <button
+          onClick={() => {
+            setIsAdding(true);
+            setEditingProduct(null);
+            setFormData(emptyForm);
+          }}
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
+        >
+          <Plus size={20} /> Thêm sản phẩm mới
         </button>
       </div>
 
-      {/* Filters & Search */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search
-                size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
+      {(isAdding || editingProduct) && (
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-blue-100">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">
+              {editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+            </h2>
+            <button onClick={resetEditor}>
+              <X size={24} className="text-gray-400" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
               <input
+                required
                 type="text"
-                placeholder="Tìm kiếm sản phẩm..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.name}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    name: event.target.value,
+                    title: event.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
-          </div>
 
-          {/* Filter by Game */}
-          <div className="flex items-center space-x-2">
-            <Filter size={20} className="text-gray-400" />
-            <select
-              value={filterGame}
-              onChange={(e) => setFilterGame(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {games.map((game) => (
-                <option key={game} value={game}>
-                  {game === "all" ? "Tất cả game" : game}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label className="block text-sm font-medium mb-1">Slug</label>
+              <input
+                required
+                type="text"
+                value={formData.slug}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    slug: event.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Tên game</label>
+              <input
+                required
+                type="text"
+                value={formData.gameTitle}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    gameTitle: event.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Danh mục</label>
+              <select
+                value={formData.categoryId || ""}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    categoryId: event.target.value ? Number(event.target.value) : null,
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
+              >
+                <option value="">Chọn danh mục</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Giá bán</label>
+              <input
+                required
+                type="number"
+                value={formData.price}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    price: Number(event.target.value),
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Số lượng</label>
+              <input
+                required
+                type="number"
+                value={formData.stockQuantity}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    stockQuantity: Number(event.target.value),
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Trạng thái</label>
+              <select
+                value={formData.status}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    status: event.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg"
+              >
+                <option value="active">active</option>
+                <option value="sold">sold</option>
+                <option value="out_of_stock">out_of_stock</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1">Mô tả</label>
+              <textarea
+                required
+                value={formData.description}
+                onChange={(event) =>
+                  setFormData((previousFormData) => ({
+                    ...previousFormData,
+                    description: event.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 border rounded-lg h-32"
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={Boolean(formData.isFeatured)}
+                  onChange={(event) =>
+                    setFormData((previousFormData) => ({
+                      ...previousFormData,
+                      isFeatured: event.target.checked,
+                    }))
+                  }
+                />
+                Nổi bật
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={Boolean(formData.isHot)}
+                  onChange={(event) =>
+                    setFormData((previousFormData) => ({
+                      ...previousFormData,
+                      isHot: event.target.checked,
+                    }))
+                  }
+                />
+                Hot
+              </label>
+            </div>
+
+            <div className="md:col-span-2 flex justify-end gap-3">
+              <button type="button" onClick={resetEditor} className="px-6 py-2 border rounded-lg">
+                Hủy
+              </button>
+              <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2">
+                <Save size={18} /> Lưu sản phẩm
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Tìm tên sản phẩm, game hoặc slug..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="w-full pl-10 pr-4 py-2 border rounded-lg"
+            />
           </div>
         </div>
-      </div>
 
-      {/* Products Table */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Sản phẩm
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Game
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Giá
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Tồn kho
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Đã bán
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Đánh giá
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Hành động
-                </th>
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-6 py-4 text-sm font-semibold">Sản phẩm</th>
+                <th className="px-6 py-4 text-sm font-semibold">Game</th>
+                <th className="px-6 py-4 text-sm font-semibold">Giá</th>
+                <th className="px-6 py-4 text-sm font-semibold">Kho / Đã bán</th>
+                <th className="px-6 py-4 text-sm font-semibold">Trạng thái</th>
+                <th className="px-6 py-4 text-sm font-semibold">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
-              {products.map((product) => (
-                <tr
-                  key={product.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
+            <tbody className="divide-y">
+              {filteredProducts.map((product) => (
+                <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {product.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          ID: #{product.id}
-                        </p>
-                      </div>
-                    </div>
+                    <div className="font-bold text-gray-900">{product.name}</div>
+                    <div className="text-xs text-gray-500">{product.slug}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
-                      {product.game}
-                    </span>
+                  <td className="px-6 py-4 text-sm">{product.gameTitle}</td>
+                  <td className="px-6 py-4 font-bold text-orange-600">{formatVnd(product.price)}</td>
+                  <td className="px-6 py-4 text-sm">
+                    {product.stockQuantity} / {product.soldCount}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {product.price}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <span
-                      className={`text-sm font-semibold ${
-                        product.stock === 0
-                          ? "text-red-600"
-                          : product.stock <= 5
-                          ? "text-yellow-600"
-                          : "text-green-600"
+                      className={`px-2 py-1 rounded-full text-xs font-bold ${
+                        product.status === "active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {product.stock}
+                      {product.status.toUpperCase()}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
-                      {product.sold}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-1">
-                      <Star
-                        size={16}
-                        className="text-yellow-400 fill-yellow-400"
-                      />
-                      <span className="text-sm font-semibold text-gray-900">
-                        {product.rating}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(product.status, product.stock)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button onClick={() => navigate(`/product/${product.id}`)} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
                         <Eye size={18} />
                       </button>
-                      <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                      <button onClick={() => startEdit(product)} className="p-2 text-green-600 hover:bg-green-50 rounded">
                         <Edit size={18} />
                       </button>
-                      <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <button onClick={() => void handleDelete(product.id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -272,25 +398,6 @@ const AdminProducts: React.FC = () => {
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Hiển thị <span className="font-semibold">1-5</span> trong{" "}
-            <span className="font-semibold">5</span> sản phẩm
-          </p>
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              Trước
-            </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-              1
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              Sau
-            </button>
-          </div>
         </div>
       </div>
     </div>
