@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -15,6 +15,7 @@ import ContactPage from "./pages/ContactPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import UserDashboard from "./pages/UserDashboard";
+import OrderDetailPage from "./pages/OrderDetailPage";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -38,8 +39,6 @@ const App: React.FC = () => {
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/cart" element={<CartPage />} />
-
-                {/* Protected Routes */}
                 <Route
                   path="/checkout"
                   element={
@@ -56,8 +55,14 @@ const App: React.FC = () => {
                     </ProtectedRoute>
                   }
                 />
-
-                {/* Admin Routes */}
+                <Route
+                  path="/user/orders/:id"
+                  element={
+                    <ProtectedRoute>
+                      <OrderDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/admin"
                   element={
