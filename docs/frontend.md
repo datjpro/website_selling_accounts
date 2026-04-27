@@ -1,4 +1,4 @@
-# Frontend Notes
+﻿# Frontend Notes
 
 ## Vai trò
 - Hiển thị giao diện, điều hướng người dùng và kết nối tới backend.
@@ -13,3 +13,4 @@
 - Không gọi API trực tiếp tràn lan trong nhiều component nếu có thể gom service.
 - Không nhồi business logic nặng vào component hiển thị.
 - Các state dùng chung nên được gom có chủ đích, tránh phát tán quá nhiều context không cần thiết.
+- Với trang danh sách tài khoản, ưu tiên nhóm dữ liệu theo category hoặc game để mỗi loại tài khoản có khu hiển thị riêng.

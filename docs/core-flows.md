@@ -1,7 +1,8 @@
-# Core Flows
+﻿# Core Flows
 
 ## 1. Luồng duyệt và mua tài khoản
 - Người dùng vào trang danh sách tài khoản.
+- Hệ thống tách danh sách theo từng loại game hoặc category như LOL, Tốc Chiến để không trộn nhiều game trong cùng một khối hiển thị.
 - Người dùng lọc hoặc tìm kiếm theo nhu cầu.
 - Người dùng xem chi tiết tài khoản.
 - Người dùng thêm vào giỏ hoặc mua trực tiếp.
