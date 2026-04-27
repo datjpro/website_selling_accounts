@@ -4,25 +4,19 @@
 - Người dùng vào trang danh sách tài khoản.
 - Hệ thống tách danh sách theo từng loại game hoặc category như LOL, Tốc Chiến để không trộn nhiều game trong cùng một khối hiển thị.
 - Người dùng lọc hoặc tìm kiếm theo nhu cầu.
-- Người dùng xem chi tiết tài khoản.
-- Người dùng thêm vào giỏ hoặc mua trực tiếp.
-- Hệ thống tạo đơn hàng và ghi nhận trạng thái thanh toán.
+- Người dùng xem chi tiết tài khoản và các đánh giá từ khách hàng khác.
+- Người dùng thêm vào giỏ hoặc mua trực tiếp. Sau khi thanh toán, người dùng được điều hướng đến trang chi tiết đơn hàng để nhận thông tin tài khoản game.
 
 ## 2. Luồng quản trị sản phẩm
 - Admin đăng nhập vào khu vực quản trị.
-- Admin tạo mới, cập nhật hoặc ẩn tài khoản/game account.
-- Dữ liệu thay đổi phải phản ánh đúng ở danh sách ngoài frontend.
+- Admin quản lý sản phẩm (thêm, sửa, xóa), đơn hàng và người dùng thông qua các giao diện Dashboard kết nối trực tiếp với API hệ thống.
+- Dữ liệu thay đổi được phản ánh tức thì ngoài frontend.
 
 ## 3. Luồng xác thực và phân quyền
-- Người dùng đăng nhập để lấy token hoặc session.
-- Backend xác minh danh tính.
-- Middleware kiểm tra quyền ở các route nhạy cảm.
-- Admin route phải được bảo vệ riêng.
+- Người dùng đăng nhập để lấy token (JWT chỉ chứa ID người dùng).
+- Hệ thống duy trì trạng thái đăng nhập qua AuthContext và bảo vệ các route nhạy cảm (Checkout, Dashboard, Admin).
 
-## 4. Luồng đơn hàng
-- Khi người dùng đặt hàng, hệ thống tạo bản ghi order.
-- Trạng thái đơn hàng phải rõ ràng và theo một tập giá trị cố định.
-- Sau thanh toán thành công, hệ thống mới bàn giao dữ liệu tài khoản hoặc đánh dấu hoàn tất theo rule thực tế.
-
-## 5. Luồng cập nhật tài liệu
-- Khi thay đổi schema, endpoint, flow nghiệp vụ hoặc convention, phải cập nhật file tương ứng trong `docs/`.
+## 4. Luồng đơn hàng và Đánh giá
+- Khi người dùng đặt hàng, hệ thống tạo đơn và quản lý trạng thái (pending, paid, completed, cancelled).
+- User có thể xem lại lịch sử đơn hàng và thông tin tài khoản đã bàn giao trong trang chi tiết đơn hàng.
+- User có thể gửi đánh giá và đánh dấu các đánh giá hữu ích tại trang chi tiết sản phẩm.

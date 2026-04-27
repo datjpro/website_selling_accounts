@@ -1,16 +1,11 @@
 ﻿# Frontend Notes
 
-## Vai trò
-- Hiển thị giao diện, điều hướng người dùng và kết nối tới backend.
+## Cấu trúc Trang và Luồng chính
+- `pages`: Các màn hình chính (Products, Detail, Checkout, Dashboard, Admin).
+- `services`: Tập trung logic gọi API (authService, productService, orderService, adminService).
+- `contexts`: Quản lý trạng thái toàn cục (Auth, Cart, Toast).
 
-## Pattern khuyến nghị
-- `pages` làm entry cho từng màn hình.
-- `components` dùng để tách UI thành các phần nhỏ tái sử dụng.
-- `services/api` là nơi gọi backend.
-- `hooks` gom logic client-side có thể tái sử dụng.
-
-## Nguyên tắc quan trọng
-- Không gọi API trực tiếp tràn lan trong nhiều component nếu có thể gom service.
-- Không nhồi business logic nặng vào component hiển thị.
-- Các state dùng chung nên được gom có chủ đích, tránh phát tán quá nhiều context không cần thiết.
-- Với trang danh sách tài khoản, ưu tiên nhóm dữ liệu theo category hoặc game để mỗi loại tài khoản có khu hiển thị riêng.
+## Nguyên tắc triển khai
+- Các màn hình User (Dashboard, Detail) và Admin (Products, Orders, Users) đều sử dụng dữ liệu thật từ API backend, không sử dụng mock data.
+- Luồng mua hàng kết thúc bằng việc hiển thị thông tin tài khoản game trong trang `OrderDetailPage` sau khi đơn hàng được đánh dấu `completed`.
+- Phân quyền được kiểm soát chặt chẽ qua `ProtectedRoute` cho cả User Dashboard và các trang Quản trị.
