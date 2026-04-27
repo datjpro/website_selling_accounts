@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, Save, X, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Save, X, Search, Upload } from "lucide-react";
 import { adminService, type AdminCategoryPayload } from "../../services/adminService";
+import { uploadService } from "../../services/uploadService";
 import type { Category } from "../../services/productService";
 
 const emptyForm: AdminCategoryPayload = {
@@ -11,6 +12,7 @@ const emptyForm: AdminCategoryPayload = {
   iconUrl: "",
   isActive: true,
 };
+
 
 const AdminCategories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -39,6 +41,21 @@ const AdminCategories: React.FC = () => {
     setEditingCategory(null);
     setIsAdding(false);
     setFormData(emptyForm);
+  };
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: "imageUrl" | "iconUrl"
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const uploadedImageUrl = await uploadService.uploadImage(file);
+      setFormData((prev) => ({ ...prev, [field]: uploadedImageUrl }));
+    } catch {
+      alert("Không thể đọc file ảnh đã chọn.");
+    }
   };
 
   const handleSave = async (event: React.FormEvent) => {
@@ -96,8 +113,27 @@ const AdminCategories: React.FC = () => {
             <div><label className="block text-sm font-medium mb-1">Tên danh mục</label><input required value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} className="w-full px-4 py-2 border rounded-lg" /></div>
             <div><label className="block text-sm font-medium mb-1">Slug</label><input required value={formData.slug} onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))} className="w-full px-4 py-2 border rounded-lg" /></div>
             <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Mô tả</label><textarea value={formData.description} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-2 border rounded-lg h-28" /></div>
-            <div><label className="block text-sm font-medium mb-1">Image URL</label><input value={formData.imageUrl} onChange={(e) => setFormData((prev) => ({ ...prev, imageUrl: e.target.value }))} className="w-full px-4 py-2 border rounded-lg" /></div>
-            <div><label className="block text-sm font-medium mb-1">Icon URL</label><input value={formData.iconUrl} onChange={(e) => setFormData((prev) => ({ ...prev, iconUrl: e.target.value }))} className="w-full px-4 py-2 border rounded-lg" /></div>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">Ảnh danh mục</label>
+              {formData.imageUrl ? <img src={formData.imageUrl} alt="Category preview" className="w-full h-40 object-cover rounded-lg border" /> : <div className="w-full h-40 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400">Chưa có ảnh</div>}
+              <label className="inline-flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                <Upload size={16} /> Chọn ảnh từ máy
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => void handleImageUpload(e, "imageUrl")} />
+              </label>
+              <input value={formData.imageUrl} onChange={(e) => setFormData((prev) => ({ ...prev, imageUrl: e.target.value }))} placeholder="Hoặc dán URL ảnh" className="w-full px-4 py-2 border rounded-lg" />
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">Icon danh mục</label>
+              {formData.iconUrl ? <img src={formData.iconUrl} alt="Icon preview" className="w-28 h-28 object-cover rounded-lg border" /> : <div className="w-28 h-28 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs text-center px-2">Chưa có icon</div>}
+              <label className="inline-flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                <Upload size={16} /> Chọn icon từ máy
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => void handleImageUpload(e, "iconUrl")} />
+              </label>
+              <input value={formData.iconUrl} onChange={(e) => setFormData((prev) => ({ ...prev, iconUrl: e.target.value }))} placeholder="Hoặc dán URL icon" className="w-full px-4 py-2 border rounded-lg" />
+            </div>
+
             <div className="md:col-span-2"><label className="flex items-center gap-2"><input type="checkbox" checked={Boolean(formData.isActive)} onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))} /> Kích hoạt danh mục</label></div>
             <div className="md:col-span-2 flex justify-end gap-3"><button type="button" onClick={resetEditor} className="px-6 py-2 border rounded-lg">Hủy</button><button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2"><Save size={18} /> Lưu danh mục</button></div>
           </form>
@@ -127,3 +163,5 @@ const AdminCategories: React.FC = () => {
 };
 
 export default AdminCategories;
+
+

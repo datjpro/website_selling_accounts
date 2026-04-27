@@ -1,6 +1,7 @@
-import express from 'express';
+﻿import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'path';
 import accountRoutes from './routes/accountRoutes';
 import adminRoutes from './routes/admin-routes';
 import authRoutes from './routes/auth-routes';
@@ -9,6 +10,7 @@ import orderRoutes from './routes/order-routes';
 import productRoutes from './routes/product-routes';
 import promotionRoutes from './routes/promotion-routes';
 import reviewRoutes from './routes/review-routes';
+import uploadRoutes from './routes/upload-routes';
 import pool from './config/database';
 import { errorHandler } from './middleware/error-handler';
 
@@ -35,6 +37,7 @@ export const createApp = () => {
   }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
 
   app.use('/api/accounts', accountRoutes);
   app.use('/api/auth', authRoutes);
@@ -44,6 +47,7 @@ export const createApp = () => {
   app.use('/api/orders', orderRoutes);
   app.use('/api/promotions', promotionRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/uploads', uploadRoutes);
 
   app.get('/api/health', async (_req, res) => {
     try {
@@ -58,3 +62,4 @@ export const createApp = () => {
 
   return app;
 };
+
