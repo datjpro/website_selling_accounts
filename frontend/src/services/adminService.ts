@@ -31,6 +31,31 @@ export interface AdminProductPayload {
   isHot?: boolean;
 }
 
+export interface AdminCategoryPayload {
+  name: string;
+  slug: string;
+  description?: string;
+  imageUrl?: string;
+  iconUrl?: string;
+  isActive?: boolean;
+}
+
+export interface AdminPromotionPayload {
+  code: string;
+  title: string;
+  description?: string;
+  discountType: "percentage" | "fixed" | "gift";
+  discountValue: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number | null;
+  usageLimit?: number | null;
+  usagePerUser?: number;
+  isActive?: boolean;
+  badge?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 export const adminService = {
   getUsers: async (): Promise<User[]> => {
     const response = await apiClient.get("/admin/users");
@@ -40,6 +65,20 @@ export const adminService = {
   getCategories: async (): Promise<Category[]> => {
     const response = await apiClient.get("/admin/categories");
     return response.data.data;
+  },
+
+  createCategory: async (payload: AdminCategoryPayload): Promise<Category> => {
+    const response = await apiClient.post("/admin/categories", payload);
+    return response.data.data;
+  },
+
+  updateCategory: async (id: number, payload: Partial<AdminCategoryPayload>): Promise<Category> => {
+    const response = await apiClient.put(`/admin/categories/${id}`, payload);
+    return response.data.data;
+  },
+
+  deleteCategory: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/categories/${id}`);
   },
 
   getProducts: async (): Promise<Product[]> => {
@@ -55,6 +94,20 @@ export const adminService = {
   getPromotions: async (): Promise<Promotion[]> => {
     const response = await apiClient.get("/admin/promotions");
     return response.data.data;
+  },
+
+  createPromotion: async (payload: AdminPromotionPayload): Promise<Promotion[]> => {
+    const response = await apiClient.post("/admin/promotions", payload);
+    return response.data.data;
+  },
+
+  updatePromotion: async (id: number, payload: Partial<AdminPromotionPayload>): Promise<Promotion[]> => {
+    const response = await apiClient.put(`/admin/promotions/${id}`, payload);
+    return response.data.data;
+  },
+
+  deletePromotion: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/promotions/${id}`);
   },
 
   createProduct: async (payload: AdminProductPayload): Promise<Product> => {
